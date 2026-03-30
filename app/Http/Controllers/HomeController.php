@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Models\Product;
+use Carbon\Carbon;
+use App\Models\Sale;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class HomeController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function index()
+    {
+       return redirect()->route('seller');
+    }
+
+
+    public function admin(){
+
+        $currentMonth = Carbon::now()->month;
+        $startOfYear = Carbon::now()->startOfYear();
+        $endOfYear = Carbon::now()->endOfYear();
+
+        $user_count = User::all()->count();
+        $montly_revenue = Sale::whereMonth('created_at', $currentMonth)->where('approved_by','>',0)->sum('total_amount');
+        $order_placed  = Order::whereMonth('created_at', $currentMonth)->count();
+        $full_paid =Order::whereMonth('created_at', $currentMonth)->where('status',2)->count();
+        $partial_paid = Order::whereMonth('created_at', $currentMonth)->where('status',1)->count();
+        $pending = Order::whereMonth('created_at', $currentMonth)->where('status',0)->count();
+        $cancelled = Order::whereMonth('created_at', $currentMonth)->where('status',3)->count();
+        $approveSales_count = Sale::where('approved_by',0)->where('rejected',0)->count();
+        $margin = Product::where('stock_quantity','<', 50)->count();
+        $withholding = Invoice::whereBetween('created_at', [$startOfYear, $endOfYear])->whereIn ('payment_status',[1,2])->sum('withholding_tax');
+
+        //Getting salles data for sales chat per year
+
+        $Current_salesData = [];
+        $current_expenseData =[];
+        $currentYear = date('Y');
+        //$previousYear = date('Y') - 1;
+
+/*
+        //for sales
+        for($i=1; $i<=12; $i++){
+            $data = Sale::where('approved_by',1)->whereYear('created_at',$currentYear);
+            $out = $data->whereMonth('created_at', $i)->sum('total_amount');
+            array_push($Current_salesData,$out);
+        }
+
+         //for expenses
+        for($i=1; $i<=12; $i++){
+            $expens_data = Expense::whereYear('created_at',$currentYear);
+            $expense_out = $expens_data->whereMonth('created_at', $i)->
+            sum('amount');
+            array_push($current_expenseData,$expense_out);
+        }
+*/
+
+        for ($i = 1; $i <= 12; $i++) {
+            // Sales data
+            $monthlySales = Sale::where('approved_by', 1)
+                ->whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $i)
+                ->sum('total_amount');
+            $Current_salesData[] = $monthlySales;
+        
+            // Expense data
+            $monthlyExpenses = Expense::whereYear('created_at', $currentYear)
+                ->whereMonth('created_at', $i)
+                ->sum('amount');
+            $current_expenseData[] = $monthlyExpenses;
+        }
+        $currentMonth = Carbon::now()->startOfMonth();
+        $previousMonth = Carbon::now()->subMonth()->startOfMonth();
+
+        $currentMonthSales = Sale::whereBetween('created_at', [$currentMonth, $currentMonth->copy()->endOfMonth()])->sum('total_amount');
+        $previousMonthSales = Sale::whereBetween('created_at', [$previousMonth, $previousMonth->copy()->endOfMonth()])->sum('total_amount');
+        $monthly_expenses = Expense::whereBetween('date', [$currentMonth, $currentMonth->copy()->endOfMonth()])->sum('amount');
+        //whereMonth('created_at','=', $currentMonth)->value('amount');
+
+        if ($previousMonthSales > 0 && $currentMonthSales > 0) {
+            $percentageIncrease = (($currentMonthSales - $previousMonthSales) / $previousMonthSales) * 100;
+        } else {
+            // Handle division by zero or no sales in the previous month
+            $percentageIncrease = 0;
+        }
+
+        // Round the percentage to two decimal places
+        $percentageIncrease = round($percentageIncrease, 2);
+
+        return view('home.admin',compact('user_count','montly_revenue','order_placed',
+                    'full_paid','partial_paid','pending','cancelled','Current_salesData','current_expenseData',
+                    'currentYear','approveSales_count','margin','percentageIncrease','monthly_expenses','withholding'));
+    }
+
+
+
+    public function seller(){
+
+        $rejected = Sale::where('approved_by',0)->where('rejected',1)->count();
+
+        return view('home.seller',compact('rejected'));
+    }
+}
