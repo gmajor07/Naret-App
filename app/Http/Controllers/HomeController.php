@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Order;
@@ -41,14 +42,16 @@ class HomeController extends Controller
         $endOfYear = Carbon::now()->endOfYear();
 
         $user_count = User::all()->count();
+        $customer_count = Customer::count();
         $montly_revenue = Sale::whereMonth('created_at', $currentMonth)->where('approved_by','>',0)->sum('total_amount');
-        $order_placed  = Order::whereMonth('created_at', $currentMonth)->count();
-        $full_paid =Order::whereMonth('created_at', $currentMonth)->where('status',2)->count();
-        $partial_paid = Order::whereMonth('created_at', $currentMonth)->where('status',1)->count();
-        $pending = Order::whereMonth('created_at', $currentMonth)->where('status',0)->count();
-        $cancelled = Order::whereMonth('created_at', $currentMonth)->where('status',3)->count();
+        $order_placed  = Order::count();
+        $full_paid = Order::where('status', 2)->count();
+        $partial_paid = Order::where('status', 1)->count();
+        $pending = Order::where('status', 0)->count();
+        $cancelled = Order::where('status', 3)->count();
         $approveSales_count = Sale::where('approved_by',0)->where('rejected',0)->count();
         $margin = Product::where('stock_quantity','<', 50)->count();
+        $total_expenses = Expense::sum('amount');
         $withholding = Invoice::whereBetween('created_at', [$startOfYear, $endOfYear])->whereIn ('payment_status',[1,2])->sum('withholding_tax');
 
         //Getting salles data for sales chat per year
@@ -107,9 +110,10 @@ class HomeController extends Controller
         // Round the percentage to two decimal places
         $percentageIncrease = round($percentageIncrease, 2);
 
-        return view('home.admin',compact('user_count','montly_revenue','order_placed',
+        return view('home.admin',compact('user_count','customer_count','montly_revenue','order_placed',
                     'full_paid','partial_paid','pending','cancelled','Current_salesData','current_expenseData',
-                    'currentYear','approveSales_count','margin','percentageIncrease','monthly_expenses','withholding'));
+                    'currentYear','approveSales_count','margin','percentageIncrease','monthly_expenses','withholding',
+                    'total_expenses'));
     }
 
 
@@ -117,7 +121,19 @@ class HomeController extends Controller
     public function seller(){
 
         $rejected = Sale::where('approved_by',0)->where('rejected',1)->count();
+        $customer_count = Customer::count();
+        $pending = Order::where('status', 0)->count();
+        $full_paid = Order::where('status', 2)->count();
+        $cancelled = Order::where('status', 3)->count();
+        $total_expenses = Expense::sum('amount');
 
-        return view('home.seller',compact('rejected'));
+        return view('home.seller', compact(
+            'rejected',
+            'customer_count',
+            'pending',
+            'full_paid',
+            'cancelled',
+            'total_expenses'
+        ));
     }
 }

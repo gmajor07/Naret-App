@@ -1,19 +1,18 @@
 @extends('layouts.master')
 
 @section('content')
-<br>
     <div class="container-fluid">
 
-            <div class="card card-default ">
+            <div class="card card-default form-shell">
                 <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-cart-plus"></i> Editing Fumigation Order {{$order->order_number}}.</h3>
                             <small class="float-right">
                                 <a href="{{route('fumigation_control_back_button')}}">
-                                     <button type="button" class="btn btn-success btn-sm"><i class="fas fa-arrow-left " style="color:white;"></i> Back</button>
+                                     <button type="button" class="btn btn-success btn-sm form-back-btn"><i class="fas fa-arrow-left " style="color:white;"></i> Back</button>
                                 </a>
                             </small>
                 </div>
-                <div class="card-body">
+                <div class="card-body form-shell__body">
                     @if ($message = Session::get('success'))
                     <div class="alert alert-success alert-block" id="success_element">
                         <strong>{{ $message }}</strong>
@@ -33,9 +32,7 @@
                    </div>
                @endif
 
-                    <br>
-
-                    <form role="form" method="post" action="{{route('fumigation.update',$order->id)}}" id="activityForm">
+                    <form role="form" method="post" action="{{route('fumigation.update',$order->id)}}" id="activityForm" class="edit-form">
                         @csrf
                         @method('PATCH')
                         <div class="row">
@@ -65,7 +62,7 @@
                             </div>
                            @foreach ($order->fumigations as $index => $fumigation )
                                 <div class="col-md-12" id="prodContainer">
-                                    <div class="row defaultRow newly" >
+                                    <div class="row defaultRow newly line-item-card" >
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Description</label>
@@ -87,16 +84,20 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-md-1">
-                                            <button type="button" class="btn btn-primary" style="width:30px; height:30px;align:center;font-size:8px;margin-top:37px;" onclick="addProduct()"> <i class="fas fa-plus" style="margin-left:-2px;;"></i></button>
+                                        <div class="col-md-2 col-lg-1">
+                                            <div class="line-item-actions">
+                                            <button type="button" class="btn btn-primary line-item-btn line-item-btn--add" onclick="addProduct()"> <i class="fas fa-plus"></i></button>
+                                            </div>
                                         </div>
-                                            @if ($index > 0)
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-danger" style="width:30px; height:30px; align:center; font-size:8px; margin-top:37px;" onclick="removeProduct(this)">
-                        <i class="fas fa-minus" style="margin-left:-2px;"></i>
-                    </button>
-                </div>
-            @endif
+                                        @if ($index > 0)
+                                        <div class="col-md-2 col-lg-1">
+                                            <div class="line-item-actions">
+                                                <button type="button" class="btn btn-danger line-item-btn line-item-btn--remove" onclick="removeProduct(this)">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                            @endforeach
@@ -144,7 +145,9 @@
 
 
                         </div>
-                        <button type="Submit" class="btn btn-outline-primary float-right"> Update Fumigation Order</button>
+                        <div class="form-submit-row">
+                            <button type="Submit" class="btn btn-outline-primary form-submit-btn"> Update Fumigation Order</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -178,7 +181,7 @@ function addProduct() {
 
     newProductDiv.html(`
         <!-- Your HTML code for a new product -->
-        <div class="newly row">
+        <div class="newly row line-item-card">
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Description</label>
@@ -197,12 +200,15 @@ function addProduct() {
                     <input type="number" name="unit_price[]" class="form-control" placeholder="Unit Price" >
                 </div>
             </div>
-            <div class="col-md-1">
-                <button class="btn btn-primary" style="width:30px; height:30px;align:center;font-size:8px;margin-top:40px;" onclick="addProduct()"> <i class="fas fa-plus" style="margin-left:-2px;"></i></button>
+            <div class="col-md-2 col-lg-1">
+                <div class="line-item-actions">
+                <button class="btn btn-primary line-item-btn line-item-btn--add" onclick="addProduct()"> <i class="fas fa-plus"></i></button>
+                </div>
             </div>
-            <div class="col-md-1">
-                <!-- Add a button to remove this product -->
-                <button type="button" class="btn btn-danger" style="width:30px; height:30px;align:center;font-size:8px;margin-top:40px;margin-left:-20px;" onclick="removeProduct(this)"> <i class="fas fa-minus" style="margin-left:-2px;;"></i></button>
+            <div class="col-md-2 col-lg-1">
+                <div class="line-item-actions">
+                <button type="button" class="btn btn-danger line-item-btn line-item-btn--remove" onclick="removeProduct(this)"> <i class="fas fa-minus"></i></button>
+                </div>
             </div>
         </div>
     `);

@@ -57,5 +57,38 @@ document.getElementById('time').innerHTML = utc.toLocaleTimeString();
 setInterval(showTime, 1000); */
 </script>
 
+<script type="text/javascript">
+$(function () {
+    $('body.dashboard-modern table td.text-warning, body.dashboard-modern table td.text-info, body.dashboard-modern table td.text-success, body.dashboard-modern table td.text-danger').each(function () {
+        var $cell = $(this);
+
+        if ($cell.find('.status-pill').length) {
+            return;
+        }
+
+        var statusText = $.trim($cell.text());
+        if (!statusText) {
+            return;
+        }
+
+        var pillClass = 'status-pill';
+
+        if ($cell.hasClass('text-warning')) {
+            pillClass += ' status-pill--warning';
+        } else if ($cell.hasClass('text-info')) {
+            pillClass += ' status-pill--info';
+        } else if ($cell.hasClass('text-success')) {
+            pillClass += ' status-pill--success';
+        } else if ($cell.hasClass('text-danger')) {
+            pillClass += ' status-pill--danger';
+        }
+
+        $cell.empty().append($('<span>', {
+            'class': pillClass,
+            text: statusText
+        }));
+    });
+});
+</script>
 
 

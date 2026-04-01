@@ -1,21 +1,20 @@
 @extends('layouts.master')
 
 @section('content')
-<br>
 <div class="container-fluid">
-    <div class="card card-default">
+    <div class="card card-default form-shell">
         <div class="card-header">
             <h3 class="card-title"><i class="fas fa-cart-plus"></i> Editing Order {{$order->order_number}}</h3>
             <small class="float-right">
                 <a href="{{ route('order_control_back_button') }}">
-                    <button type="button" class="btn btn-success btn-sm">
+                    <button type="button" class="btn btn-success btn-sm form-back-btn">
                         <i class="fas fa-arrow-left " style="color:white;"></i> Back
                     </button>
                 </a>
             </small>
         </div>
 
-        <div class="card-body">
+        <div class="card-body form-shell__body">
             @if ($message = Session::get('success'))
                 <div class="alert alert-success alert-block" id="success_element">
                     <strong>{{ $message }}</strong>
@@ -34,7 +33,7 @@
                 </div>
             @endif
 
-            <form method="post" action="{{ route('orders.update', $order->id) }}">
+            <form method="post" action="{{ route('orders.update', $order->id) }}" class="edit-form">
                 @csrf
                 @method('PATCH')
 
@@ -70,7 +69,7 @@
                 <!-- Products & Quantities -->
                 <div id="prodContainer">
                     @foreach ($order->products as $orderProduct)
-                        <div class="row product-row">
+                        <div class="row product-row line-item-card">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Product</label>
@@ -96,10 +95,12 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-primary add-product" style="margin-top:30px;">
+                            <div class="col-md-2 col-lg-1">
+                                <div class="line-item-actions">
+                                <button type="button" class="btn btn-primary add-product line-item-btn line-item-btn--add">
                                     <i class="fas fa-plus"></i>
                                 </button>
+                                </div>
                             </div>
                           {{--   <div class="col-md-1">
                                 <button type="button" class="btn btn-danger remove-product" style="margin-top:30px;">
@@ -171,7 +172,9 @@
                 </div>
         </div>
 
-                <button type="submit" class="btn btn-outline-primary float-right">Update Order</button>
+                <div class="form-submit-row">
+                    <button type="submit" class="btn btn-outline-primary form-submit-btn">Update Order</button>
+                </div>
             </form>
         </div>
     </div>
@@ -187,7 +190,7 @@ $(document).ready(function() {
 
     $(document).on('click', '.add-product', function() {
         $('#prodContainer').append(`
-            <div class="row product-row">
+            <div class="row product-row line-item-card">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Product</label>
@@ -207,15 +210,19 @@ $(document).ready(function() {
                     </div>
                 </div>
 
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-primary add-product" style="margin-top:30px;">
+                <div class="col-md-2 col-lg-1">
+                    <div class="line-item-actions">
+                    <button type="button" class="btn btn-primary add-product line-item-btn line-item-btn--add">
                         <i class="fas fa-plus"></i>
                     </button>
+                    </div>
                 </div>
-                <div class="col-md-1">
-                    <button type="button" class="btn btn-danger remove-product" style="margin-top:30px;">
+                <div class="col-md-2 col-lg-1">
+                    <div class="line-item-actions">
+                    <button type="button" class="btn btn-danger remove-product line-item-btn line-item-btn--remove">
                         <i class="fas fa-minus"></i>
                     </button>
+                    </div>
                 </div>
             </div>
         `);

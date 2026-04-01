@@ -57,11 +57,10 @@
                             <td> {{ $customer->email }} </td>
                             <td> {{ $customer->location }} </td>
                             @if ($customer->status == 1)
-                                <td style="text-align: center;"> <i class="badge badge-success">Active</i>
-
+                                <td style="text-align: center;"><span class="status-pill status-pill--success">Active</span>
                                 </td>
                             @else
-                                <td style="text-align: center;"> <i class="badge badge-danger">Not Active</i>
+                                <td style="text-align: center;"><span class="status-pill status-pill--danger">Not Active</span>
                                 </td>
                             @endif
                             <td style="text-align: center;">

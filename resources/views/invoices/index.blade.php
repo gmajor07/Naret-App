@@ -31,20 +31,20 @@
             </ul>
         </div>
     @endif
-        <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+        <ul class="nav nav-tabs invoice-tabs" id="custom-tabs-three-tab" role="tablist">
             <li class="nav-item">
-            <a class="nav-link active" id="custom-tabs-three-home-tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true">Pending Invoice</a>
+            <a class="nav-link active" id="custom-tabs-three-home-tab" data-toggle="pill" href="#custom-tabs-three-home" role="tab" aria-controls="custom-tabs-three-home" aria-selected="true"><i class="fas fa-hourglass-half"></i><span>Pending Invoice</span></a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false">Partial Paid Invoice</a>
+            <a class="nav-link" id="custom-tabs-three-profile-tab" data-toggle="pill" href="#custom-tabs-three-profile" role="tab" aria-controls="custom-tabs-three-profile" aria-selected="false"><i class="fas fa-coins"></i><span>Partial Paid Invoice</span></a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" id="custom-tabs-three-messages-tab" data-toggle="pill" href="#custom-tabs-three-messages" role="tab" aria-controls="custom-tabs-three-messages" aria-selected="false">Paid Invoice</a>
+            <a class="nav-link" id="custom-tabs-three-messages-tab" data-toggle="pill" href="#custom-tabs-three-messages" role="tab" aria-controls="custom-tabs-three-messages" aria-selected="false"><i class="fas fa-check-circle"></i><span>Paid Invoice</span></a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" id="custom-tabs-three-settings-tab" data-toggle="pill" href="#custom-tabs-three-settings" role="tab" aria-controls="custom-tabs-three-settings" aria-selected="false">Cancelled Invoice</a>
+            <a class="nav-link" id="custom-tabs-three-settings-tab" data-toggle="pill" href="#custom-tabs-three-settings" role="tab" aria-controls="custom-tabs-three-settings" aria-selected="false"><i class="fas fa-ban"></i><span>Cancelled Invoice</span></a>
             </li>
-            </ul>
+        </ul>
     <div class="tab-content" id="custom-tabs-three-tabContent">
     <div class="tab-pane fade show active" id="custom-tabs-three-home" role="tabpanel" aria-labelledby="custom-tabs-three-home-tab">
         <!-- unpaid invoice -->
@@ -75,7 +75,7 @@
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td>{{ $pending->invoice_number }} </td>
-                        <td> <a href="{{route('invoice.addPayment', $pending->id)}}"> {{ $pending->order->order_number}} </a></td> {{-- order number --}}
+                        <td> <a href="{{route('invoice.addPayment', $pending->id)}}"> <b>{{ $pending->order->order_number}}</b> </a></td> {{-- order number --}}
                         <td> {{ $pending->customer->name}} </td>
                         <td> {{number_format((  $pending->total_vat_inclusive),2,'.',',')}}</td>
                         <td> {{number_format(( $pending->vat),2,'.',',')}}</td>
@@ -84,7 +84,7 @@
                         <td> {{number_format(($pending->amount_paid),2,'.',',')}}</td>
                         <td>{{number_format(( $pending->amount_due),2,'.',',')}}</td>
                         @if ($pending->payment_status == 0)
-                        <td class="text-warning">Waitinng for Payment..</td>
+                        <td class="text-warning">Waiting for Payment</td>
                         @elseif ($pending->payment_status == 1)
                         <td class="text-info">Partial Paid</td>
                         @elseif ($pending->payment_status == 2)
@@ -105,9 +105,6 @@
                         <td> {{ $pending->due_date}} </td>
                         {{-- <td> {{ $account->account_for}} </td> --}}
                         <td style="text-align: center;">
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
-                                data-target="#modal-edit{{ $pending->id }}"><i class="fas fa-edit fa-xs"></i> </button>
-
                             <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal"
                                 data-target="#modal-cancel{{ $pending->id }}"><i class="fas fas fa-ban">
                                 </i></button>
@@ -126,9 +123,6 @@
                                     <a class="dropdown-item" href="{{ route('printNaretFumigationInvonce', [$pending->id, 'invoice']) }}">Invoice</a>
                                 @endif
 
-                                <a class="dropdown-item" href="#">View</a>
-                                <a class="dropdown-item" href="#">Edit</a>
-                                <a class="dropdown-item" href="#">Cancel</a>
                             </div>
                         </div>
 
@@ -162,31 +156,6 @@
                         </div>
                     </div>
 
-                    <!-- Editing User modal -->
-                    <div class="modal fade" id="modal-edit{{$pending->id}}">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <form role="form" method="post" action="{{route('invoices.update',$pending->id)}}" id="activityForm">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="modal-header bg-primary">
-                                        <h4 class="modal-title">Editing Account {{ $pending->invoice_number }} </h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer justify-content-between ">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        <button type="Submit" class="btn btn-outline-primary"> Update Invoice</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 @endforeach
             </tbody>
         </table>
@@ -221,7 +190,7 @@
                 <tr>
                     {{-- <td> {{ ++$key }} </td> --}}
                     <td> <a href="{{route('invoice.addPayment', $partial_paid->id)}}"> {{ $partial_paid->invoice_number }} </a></td>
-                    <td> {{ $partial_paid->order->order_number}} </td> {{-- order number --}}
+                    <td><b> {{ $partial_paid->order->order_number}} </b></td> {{-- order number --}}
                     <td> {{ $partial_paid->customer->name}} </td>
                     <td> {{number_format(( $partial_paid->total_vat_inclusive),2,'.',',')}}</td>
                     <td> {{number_format(( $partial_paid->vat),2,'.',',')}}</td>
@@ -230,7 +199,7 @@
                     <td> {{number_format(( $partial_paid->amount_paid),2,'.',',')}}</td>
                     <td> {{number_format(( $partial_paid->amount_due),2,'.',',')}}</td>
                     @if ($partial_paid->payment_status == 0)
-                    <td class="text-warning">Waitinng for Payment..</td>
+                    <td class="text-warning">Waiting for Payment</td>
                     @elseif ($partial_paid->payment_status == 1)
                     <td class="text-info">Partial Paid</td>
                     @elseif ($partial_paid->payment_status == 2)
@@ -265,9 +234,6 @@
                                     <a class="dropdown-item" href="{{ route('printNaretFumigationInvonce', [$partial_paid->id, 'invoice']) }}">Invoice</a>
                                 @endif
 
-                                <a class="dropdown-item" href="#">View</a>
-                                <a class="dropdown-item" href="#">Edit</a>
-                                <a class="dropdown-item" href="#">Cancel</a>
                             </div>
                         </div>
                     </td>
@@ -308,7 +274,7 @@
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td> {{ $paid->invoice_number }} </td>
-                        <td> {{ $paid->order->order_number}} </td> {{-- order number --}}
+                        <td><b> {{ $paid->order->order_number}} </b></td> {{-- order number --}}
                         <td> {{ $paid->customer->name}} </td>
                         <td> {{number_format(( $paid->total_vat_inclusive),2,'.',',')}}</td>
                         <td> {{number_format(( $paid->vat),2,'.',',')}}</td>
@@ -317,7 +283,7 @@
                         <td> {{number_format(( $paid->amount_paid),2,'.',',')}}</td>
                         <td> {{number_format(( $paid->amount_due),2,'.',',')}}</td>
                         @if ($paid->payment_status == 0)
-                        <td class="text-warning">Waitinng for Payment..</td>
+                        <td class="text-warning">Waiting for Payment</td>
                         @elseif ($paid->payment_status == 1)
                         <td class="text-info">Partial Paid</td>
                         @elseif ($paid->payment_status == 2)
@@ -351,9 +317,6 @@
                                         <a class="dropdown-item" href="{{ route('printNaretFumigationInvonce', [$paid->id, 'invoice']) }}">Invoice</a>
                                     @endif
 
-                                    <a class="dropdown-item" href="#">View</a>
-                                    <a class="dropdown-item" href="#">Edit</a>
-                                    <a class="dropdown-item" href="#">Cancel</a>
                                 </div>
                             </div>
                         </td>
@@ -392,7 +355,7 @@
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td> {{ $cancelled->invoice_number }} </td>
-                        <td> {{ $cancelled->order->order_number}} </td> {{-- order number --}}
+                        <td><b> {{ $cancelled->order->order_number}} </b></td> {{-- order number --}}
                         <td> {{ $cancelled->customer->name}} </td>
                         <td> {{number_format(( $cancelled->total_vat_inclusive),2,'.',',')}}</td>
                         <td> {{number_format(( $cancelled->vat),2,'.',',')}}</td>
@@ -401,7 +364,7 @@
                         <td> {{number_format(( $cancelled->amount_paid),2,'.',',')}}</td>
                         <td> {{number_format(( $cancelled->amount_due),2,'.',',')}}</td>
                         @if ($cancelled->payment_status == 0)
-                        <td class="text-warning">Waitinng for Payment..</td>
+                        <td class="text-warning">Waiting for Payment</td>
                         @elseif ($cancelled->payment_status == 1)
                         <td class="text-info">Partial Paid</td>
                         @elseif ($cancelled->payment_status == 2)
@@ -436,9 +399,6 @@
                                         <a class="dropdown-item" href="{{ route('printNaretFumigationInvonce', [$cancelled->id, 'invoice']) }}">Invoice</a>
                                     @endif
 
-                                    <a class="dropdown-item" href="#">View</a>
-                                    <a class="dropdown-item" href="#">Edit</a>
-                                    <a class="dropdown-item" href="#">Cancel</a>
                                 </div>
                             </div>
                         </td>
@@ -471,31 +431,6 @@
                         </div>
                     </div>
 
-                    <!-- Editing User modal -->
-                    <div class="modal fade" id="modal-edit{{$cancelled->id}}">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <form role="form" method="post" action="{{route('invoices.update',$cancelled->id)}}" id="activityForm">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="modal-header bg-primary">
-                                        <h4 class="modal-title">Editing Account {{ $cancelled->invoice_number }} </h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row">
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer justify-content-between ">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        <button type="Submit" class="btn btn-outline-primary"> Update Invoice</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 @endforeach
             </tbody>
         </table>
@@ -646,6 +581,3 @@
 
     </script>
 @endsection
-
-
-

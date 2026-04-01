@@ -55,7 +55,7 @@
                     @foreach ($orders as $key => $order)
                         <tr>
                             <td> {{ ++$key }} </td>
-                            <td> {{ $order->order_number }} </td>
+                            <td><b> {{ $order->order_number }} </b></td>
                             <td> {{ $order->customer->name}} </td>
                             <td> {{ $order->customer->location}} </td>
                             <td> {{ $order->customer->email}} </td>

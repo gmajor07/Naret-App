@@ -69,15 +69,8 @@
                         <div class="modal fade" id="modal-delete{{$expense->id}}">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <div class="modal-header bg-danger">
-                                        <h4 class="modal-title">Deleting {{$expense->description}} </h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to delete <b> {{$expense->description}}  </b> permanently? </p>
-                                        You won't be able to revert this...!
+                                    <div class="modal-body py-4">
+                                        <p class="mb-0">This expense will be permanently removed. Are you sure you want to continue?</p>
                                     </div>
                                     <div class="modal-footer justify-content-between">
 
@@ -100,7 +93,7 @@
                                         @csrf
                                         @method('PATCH')
                                         <div class="modal-header bg-primary">
-                                            <h4 class="modal-title">Editing Expenditure {{ $expense->description }} </h4>
+                                            <h4 class="modal-title">Edit Expenditure</h4>
                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>

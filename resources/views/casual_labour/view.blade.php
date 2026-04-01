@@ -57,14 +57,14 @@
                                   </tr>
                             @endforeach
 
-                            <tr>
+                            <tr style="color: #ff8c00;">
                                 <td></td>
                                 <td></td>
                                 <td></td>
                                 <td><b>DISCOUNT</b></td>
                                 <td><b>Tzs. {{number_format(($order->invoice->discount),2,'.',',')}} </b></td>
                               </tr>
-                            <tr>
+                            <tr style="color: #0069d9;">
                               <td></td>
                               <td></td>
                               <td></td>
@@ -72,7 +72,7 @@
                               <td><b>Tzs. {{number_format(($order->invoice->vat),2,'.',',')}} </b></td>
                             </tr>
 
-                            <tr>
+                            <tr style="color: #dc3545;">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -81,7 +81,7 @@
                               </tr>
 
                              @if ($order->invoice->total_vat_inclusive > 0)
-                             <tr>
+                             <tr style="color: #28a745; font-weight: 700;">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -89,7 +89,7 @@
                                 <td><b>Tzs. {{number_format(($order->invoice->total_vat_inclusive),2,'.',',')}}</b></td>
                               </tr>
                               @else
-                              <tr>
+                              <tr style="color: #28a745; font-weight: 700;">
                                 <td></td>
                                 <td></td>
                                 <td></td>

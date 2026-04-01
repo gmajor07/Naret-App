@@ -2,10 +2,12 @@
   <aside class="main-sidebar sidebar-dark-info elevation-4" >
       <!-- Brand Logo -->
 
-      <a href="{{route('admin')}}" class="brand-link" style="background-color: #3c8dbc">
-        <img src="{{ asset('assets/dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo"
-            class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">Naret Company</span>
+      <a href="{{ Auth::check() && Auth::user()->role_id == 1 ? route('admin') : route('seller') }}" class="brand-link">
+        <span class="brand-link__mark">N</span>
+        <span class="brand-text font-weight-light">
+            <span class="brand-link__name">Naret Company</span>
+            <span class="brand-link__subtext">Operations panel</span>
+        </span>
       </a>
 
       <!-- Sidebar -->
