@@ -59,6 +59,50 @@ setInterval(showTime, 1000); */
 
 <script type="text/javascript">
 $(function () {
+    var storageKey = 'naret-dashboard-theme';
+    var toggleButton = document.querySelector('[data-theme-toggle]');
+    var toggleLabel = document.querySelector('[data-theme-label]');
+    var toggleIcon = document.querySelector('[data-theme-icon]');
+
+    function renderThemeToggle(theme) {
+        var isDark = theme === 'dark';
+
+        document.body.classList.toggle('dark-mode', isDark);
+
+        if (!toggleButton || !toggleLabel || !toggleIcon) {
+            return;
+        }
+
+        toggleButton.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        toggleButton.setAttribute('title', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        toggleLabel.textContent = isDark ? 'Light mode' : 'Dark mode';
+        toggleIcon.innerHTML = isDark
+            ? '<i class="fas fa-sun"></i>'
+            : '<i class="fas fa-moon"></i>';
+    }
+
+    function getSavedTheme() {
+        try {
+            return localStorage.getItem(storageKey) === 'dark' ? 'dark' : 'light';
+        } catch (error) {
+            return document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        }
+    }
+
+    renderThemeToggle(getSavedTheme());
+
+    if (toggleButton) {
+        toggleButton.addEventListener('click', function () {
+            var nextTheme = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+
+            renderThemeToggle(nextTheme);
+
+            try {
+                localStorage.setItem(storageKey, nextTheme);
+            } catch (error) {}
+        });
+    }
+
     $('body.dashboard-modern table td.text-warning, body.dashboard-modern table td.text-info, body.dashboard-modern table td.text-success, body.dashboard-modern table td.text-danger').each(function () {
         var $cell = $(this);
 
@@ -90,5 +134,4 @@ $(function () {
     });
 });
 </script>
-
 

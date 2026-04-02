@@ -14,7 +14,7 @@
 <!-- JQVMap -->
 <link rel="stylesheet" href="{{ asset('assets/plugins/jqvmap/jqvmap.min.css') }}">
 <!-- Theme style -->
-<link rel="stylesheet" href="{{ asset('assets/dist/css/adminlte.min.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/dist/css/adminlte.min.css') }}?v={{ filemtime(public_path('assets/dist/css/adminlte.min.css')) }}">
 <!-- overlayScrollbars -->
 <link rel="stylesheet" href="{{ asset('assets/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
 <!-- Daterange picker -->
@@ -33,7 +33,13 @@
 <link rel="stylesheet" href="{{ asset('assets/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
 <!-- BS Stepper -->
 <link rel="stylesheet" href="{{ asset('assets/plugins/bs-stepper/css/bs-stepper.min.css') }}">
-<link rel="stylesheet" href="{{ asset('css/dashboard-modern.css') }}">
+<link rel="stylesheet" href="{{ asset('css/dashboard-modern.css') }}?v={{ filemtime(public_path('css/dashboard-modern.css')) }}">
+@php($dashboardModernCssPath = public_path('css/dashboard-modern.css'))
+@if (is_file($dashboardModernCssPath))
+<style>
+{!! file_get_contents($dashboardModernCssPath) !!}
+</style>
+@endif
 {{-- <link rel="stylesheet" href="{{asset('assets/dist/css/skins/skin-blue.min.css')}} "> --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 

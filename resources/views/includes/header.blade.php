@@ -20,6 +20,20 @@
                     </span>
                 </a>
 
+                <button
+                    type="button"
+                    class="dashboard-theme-toggle"
+                    data-theme-toggle
+                    aria-label="Switch color theme"
+                    aria-pressed="false"
+                    title="Switch color theme"
+                >
+                    <span class="dashboard-theme-toggle__icon" data-theme-icon>
+                        <i class="fas fa-moon"></i>
+                    </span>
+                    <span class="dashboard-theme-toggle__label" data-theme-label>Dark mode</span>
+                </button>
+
                 <div class="nav-item dropdown">
                     <a id="navbarDropdown" class="dashboard-topbar__profile dropdown-toggle" href="#"
                         role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
