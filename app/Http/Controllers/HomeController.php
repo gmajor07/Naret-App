@@ -31,7 +31,11 @@ class HomeController extends Controller
      */
     public function index()
     {
-       return redirect()->route('seller');
+        if ((int) auth()->user()->role_id === 1) {
+            return redirect()->route('admin');
+        }
+
+        return redirect()->route('seller');
     }
 
 

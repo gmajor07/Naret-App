@@ -102,7 +102,7 @@
                                         <div class="modal-footer justify-content-between">
 
                                             <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                                            <form action="" method="post">
+                                            <form action="{{ route('users.destroy', $user->id) }}" method="post">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-outline-danger">Yes</button>
@@ -202,7 +202,7 @@
             <div class="modal fade" id="addUser">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <form role="form" method="post" action="" id="activityForm">
+                        <form role="form" method="post" action="{{ route('users.store') }}" id="activityForm">
                             @csrf
                             @method('POST')
                             <div class="modal-header bg-primary">
@@ -370,5 +370,4 @@
 
 
 @endsection
-
 

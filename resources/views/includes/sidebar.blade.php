@@ -122,9 +122,27 @@
                     </a>
                 </li>
 
+                <li class="nav-header">SETTINGS</li>
+                <li class="nav-item has-treeview ">
+                    <a href="{{ route('settings.index') }}" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>
+                            System Settings
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item has-treeview ">
+                    <a href="{{ route('users.index') }}" class="nav-link">
+                        <i class="nav-icon fas fa-user-shield"></i>
+                        <p>
+                            User Management
+                        </p>
+                    </a>
+                </li>
+
 
      {{--  side bar menu options for seller  --}}
-               @elseif (Auth::check() && Auth::user()->role_id == 2)
+               @elseif (Auth::check() && Auth::user()->role_id != 1)
                <li class="nav-item has-treeview ">
                    <a href="{{route('customers.index')}}" class="nav-link">
                        <i class="nav-icon fas fa-users"></i>

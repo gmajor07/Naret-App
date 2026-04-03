@@ -35,19 +35,11 @@ class LoginController extends Controller
         // Check if the user is authenticated
     if (Auth::check()) {
         if ($user->role_id) {
-            // 1 => admin, 2 => seller
-            switch ($user->role_id) {
-                case 1:
-                    return redirect()->route('admin');
-                    break;
-                case 2:
-                    return redirect()->route('seller');
-                    break;
-                default:
-                    Auth::logout();
-                    return back()->with('warning', 'Some credentials are wrong, contact administrator.');
-                    break;
+            if ((int) $user->role_id === 1) {
+                return redirect()->route('admin');
             }
+
+            return redirect()->route('seller');
         } else {
             Auth::logout();
             return back()->with('warning', 'Credentials are not valid, contact administrator.');
@@ -59,13 +51,17 @@ class LoginController extends Controller
     }
 }
 
+protected function credentials(Request $request)
+{
+    return [
+        'email' => $request->email,
+        'password' => $request->password,
+        'status' => 1,
+    ];
+}
+
 public function __construct()
 {
     $this->middleware('guest')->except('logout');
 }
-
-/* protected function credentials(\Illuminate\Http\Request $request)
-{
-    return ['email' => $request->email, 'password' => $request->password, 'status' => 0];
-} */
 }

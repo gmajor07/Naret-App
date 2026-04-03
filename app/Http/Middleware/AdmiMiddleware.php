@@ -22,8 +22,7 @@ class AdmiMiddleware
         if(Auth::user()->role_id == 1){
             return $next($request);
         }
-        if(Auth::user()->role_id == 2){
-            return redirect()->route('seller');
-        }
+
+        return redirect()->route('seller');
     }
 }

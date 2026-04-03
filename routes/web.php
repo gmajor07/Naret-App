@@ -20,14 +20,15 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UnitMeasureController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ChangePasswordController;
+use App\Http\Controllers\SettingsController;
 
 // Redirect root URL to login page
 Route::get('/', function () {
     return view('auth.login');
 });
 
-// Authentication routes (login, registration)
-Auth::routes();
+// Authentication routes (login only, user creation is handled by admins)
+Auth::routes(['register' => false]);
 
 // Protected Routes: Only accessible if authenticated
 Route::middleware(['auth'])->group(function () {
@@ -36,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('admin')->group(function () {
         Route::resource('roles', RoleController::class);
         Route::resource('users', UserController::class);
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::get('/admin', [App\Http\Controllers\HomeController::class, 'admin'])->name('admin');
         Route::get('/unapprovedSales', [SalesController::class, 'approveView'])->name('unapprovedSales');
         Route::patch('/rejectSales/{id}', [SalesController::class, 'rejectSales'])->name('rejectSales');
@@ -121,6 +123,4 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('expenses', ExpensesController::class);
 
 });
-
-
 

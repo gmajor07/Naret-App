@@ -19,9 +19,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'role_id',
+        'status',
     ];
 
     /**
@@ -52,6 +55,11 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'role_user','user_id','role_id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->role_id === 1;
     }
 
    /*  public function consumptions (){

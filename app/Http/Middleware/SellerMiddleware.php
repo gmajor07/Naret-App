@@ -19,11 +19,10 @@ class SellerMiddleware
         if(!Auth::check()){
             return redirect()->route('login');
         }
-        if(Auth::user()->role_id == 2){
-            return $next($request);
-        }
         if(Auth::user()->role_id == 1){
             return redirect()->route('admin');
         }
+
+        return $next($request);
     }
 }

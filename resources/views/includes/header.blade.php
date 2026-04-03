@@ -16,7 +16,7 @@
                     <span class="dashboard-topbar__brand-mark">N</span>
                     <span>
                         <span class="dashboard-topbar__brand-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
-                        <span class="dashboard-topbar__brand-subtitle">{{ Auth::user()->role_id == 1 ? 'Administrator' : 'Seller' }}</span>
+                        <span class="dashboard-topbar__brand-subtitle">{{ Auth::user()->role->name ?? 'User' }}</span>
                     </span>
                 </a>
 
@@ -42,7 +42,7 @@
                         </span>
                         <span class="dashboard-topbar__profile-copy">
                             <span class="dashboard-topbar__profile-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
-                            <span class="dashboard-topbar__profile-role">{{ Auth::user()->role_id == 1 ? 'Administrator' : 'Seller' }}</span>
+                            <span class="dashboard-topbar__profile-role">{{ Auth::user()->role->name ?? 'User' }}</span>
                         </span>
                     </a>
 

@@ -15,7 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::with('role')->get();
         $roles = Role::all();
         return view('users.index', compact('users','roles'));
     }
@@ -68,7 +68,7 @@ class UserController extends Controller
         $user->save();
 
       //attch to pivot table
-        $user->roles()->attach($user->role_id, ['created_at' => now(), 'updated_at' => now()]);
+        $user->roles()->sync([$user->role_id]);
 
         return redirect()->route('users.index')->with('success','User added successfully.');
     }
@@ -90,19 +90,17 @@ class UserController extends Controller
             'role_id' => 'required',
             // 'department_id' => 'required',
         ]);
-
-
-
         $firstName = ucwords($request['first_name']);
         $lastName = ucwords($request['last_name']);
-        $passcode = strtoupper($request['last_name']).'@123';
 
         $user->first_name = $firstName;
         $user->last_name = $lastName;
         $user->email = $request['email'];
-        $user->password = Hash::make($passcode);
         $user->role_id = $request['role_id'];
         $user->save();
+
+        $user->roles()->sync([$user->role_id]);
+
         return redirect()->route('users.index')->with('success','User Updated.');
     }
 
@@ -135,6 +133,19 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        if ((int) auth()->id() === (int) $user->id) {
+            return redirect()->route('users.index')->with('success', 'You cannot delete your own account.');
+        }
+
+        if ($user->isAdmin() && User::where('role_id', 1)->count() <= 1) {
+            return redirect()->route('users.index')->with('success', 'You cannot delete the last administrator.');
+        }
+
+        $user->roles()->detach();
+        $user->delete();
+
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

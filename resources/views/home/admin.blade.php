@@ -292,6 +292,22 @@
                     </div>
                     <div class="dashboard-panel__body">
                         <div class="dashboard-quick-links">
+                            <a href="{{ route('settings.index') }}" class="dashboard-quick-link">
+                                <span class="dashboard-quick-link__icon"><i class="fas fa-cogs"></i></span>
+                                <span>
+                                    <span class="dashboard-quick-link__title">System Settings</span>
+                                    <span class="dashboard-quick-link__text">Manage users, roles, and access control</span>
+                                </span>
+                            </a>
+
+                            <a href="{{ route('users.index') }}" class="dashboard-quick-link">
+                                <span class="dashboard-quick-link__icon"><i class="fas fa-user-shield"></i></span>
+                                <span>
+                                    <span class="dashboard-quick-link__title">User Management</span>
+                                    <span class="dashboard-quick-link__text">Open the user administration page</span>
+                                </span>
+                            </a>
+
                             <a href="{{ route('unapprovedSales') }}" class="dashboard-quick-link">
                                 <span class="dashboard-quick-link__icon"><i class="fas fa-hand-holding-usd"></i></span>
                                 <span>
