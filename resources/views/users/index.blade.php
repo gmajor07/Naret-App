@@ -178,7 +178,25 @@
                                             <div class="modal-body">
                                                 <div class="form-group">
                                                     <label>New Password</label>
-                                                    <input type="text" name="password" class="form-control" value="" placeholder="Enter Password" >
+                                                    <input
+                                                        type="password"
+                                                        name="password"
+                                                        class="form-control @error('password') is-invalid @enderror"
+                                                        value=""
+                                                        placeholder="Enter Password"
+                                                        required
+                                                        minlength="8"
+                                                        pattern="^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$"
+                                                        title="Password must be at least 8 characters and include at least one number and one special character."
+                                                    >
+                                                    <small class="form-text text-muted">
+                                                        Use at least 8 characters, including one number and one special character.
+                                                    </small>
+                                                    @error('password')
+                                                        <span class="invalid-feedback d-block" role="alert">
+                                                            <strong>{{ $message }}</strong>
+                                                        </span>
+                                                    @enderror
                                                 </div>
 
                                             </div>
@@ -370,4 +388,3 @@
 
 
 @endsection
-

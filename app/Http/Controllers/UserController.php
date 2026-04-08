@@ -32,6 +32,9 @@ class UserController extends Controller
                 'min:8', // At least 8 characters
                 'regex:/^(?=.*[0-9])(?=.*[\W_]).{8,}$/', // At least one number and one special character
             ],
+        ], [
+            'password.min' => 'The new password must be at least 8 characters long.',
+            'password.regex' => 'The new password must include at least one number and one special character.',
         ]);
 
         $user = User::findOrFail($id);
