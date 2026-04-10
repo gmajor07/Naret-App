@@ -11,10 +11,9 @@
                             <i class="fas fa-chart-line"></i>
                             Admin dashboard
                         </span>
-                        <h1 class="dashboard-hero__title">Karibu kwenye control center ya Naret Company.</h1>
+                        <h1 class="dashboard-hero__title">Welcome to Naret Company's control center.</h1>
                         <p class="dashboard-hero__subtitle">
-                            Hapa unaweza kuona muhtasari wa biashara kwa mtindo wa kisasa wenye jamii za rangi za blue:
-                            mapato ya mwezi, gharama, invoices, customers, na hali ya malipo yote kwa mwonekano safi na wa kisasa.
+                            Here you can see a modern business overview: monthly revenue, expenses, invoices, customers, and payment status with a clean, contemporary layout.
                         </p>
                     </div>
                 </div>
