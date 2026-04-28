@@ -8,6 +8,7 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -39,69 +40,123 @@ class HomeController extends Controller
     }
 
 
-    public function admin(){
+    public function admin(Request $request){
 
-        $currentMonth = Carbon::now()->month;
-        $startOfYear = Carbon::now()->startOfYear();
-        $endOfYear = Carbon::now()->endOfYear();
+        $request->validate([
+            'chart_year' => 'nullable|integer',
+            'chart_from_date' => 'nullable|date',
+            'chart_to_date' => 'nullable|date|after_or_equal:chart_from_date',
+        ]);
+
+        $now = Carbon::now();
+        $currentYear = $now->year;
+        $currentMonthStart = $now->copy()->startOfMonth();
+        $currentMonthEnd = $now->copy()->endOfMonth();
+        $previousMonthStart = $now->copy()->subMonth()->startOfMonth();
+        $previousMonthEnd = $now->copy()->subMonth()->endOfMonth();
+        $startOfYear = $now->copy()->startOfYear();
+        $endOfYear = $now->copy()->endOfYear();
 
         $user_count = User::all()->count();
         $customer_count = Customer::count();
-        $montly_revenue = Sale::whereMonth('created_at', $currentMonth)->where('approved_by','>',0)->sum('total_amount');
-        $order_placed  = Order::count();
-        $full_paid = Order::where('status', 2)->count();
-        $partial_paid = Order::where('status', 1)->count();
-        $pending = Order::where('status', 0)->count();
-        $cancelled = Order::where('status', 3)->count();
+        $montly_revenue = Sale::where('approved_by','>',0)
+            ->where('rejected', 0)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->sum('total_amount');
+        $order_placed  = Order::where('type_id', 1)->count();
+        $full_paid = Order::where('type_id', 1)->where('status', 2)->count();
+        $partial_paid = Order::where('type_id', 1)->where('status', 1)->count();
+        $pending = Order::where('type_id', 1)->where('status', 0)->count();
+        $cancelled = Order::where('type_id', 1)->where('status', 3)->count();
         $approveSales_count = Sale::where('approved_by',0)->where('rejected',0)->count();
         $margin = Product::where('stock_quantity','<', 50)->count();
         $total_expenses = Expense::sum('amount');
         $withholding = Invoice::whereBetween('created_at', [$startOfYear, $endOfYear])->whereIn ('payment_status',[1,2])->sum('withholding_tax');
 
-        //Getting salles data for sales chat per year
+        $oldestSaleDate = Sale::where('approved_by', '>', 0)->where('rejected', 0)->min('created_at');
+        $oldestExpenseDate = Expense::min('date');
+        $oldestChartYear = collect([
+            $oldestSaleDate ? Carbon::parse($oldestSaleDate)->year : null,
+            $oldestExpenseDate ? Carbon::parse($oldestExpenseDate)->year : null,
+            $currentYear,
+        ])->filter()->min();
+        $availableChartYears = range($currentYear, $oldestChartYear);
+        $selectedChartYear = (int) $request->query('chart_year', $currentYear);
+        if (! in_array($selectedChartYear, $availableChartYears, true)) {
+            $selectedChartYear = $currentYear;
+        }
 
+        $chartFromDate = $request->query('chart_from_date');
+        $chartToDate = $request->query('chart_to_date');
+        $chartRangeMode = $chartFromDate && $chartToDate;
+        if ($chartRangeMode) {
+            $chartStartDate = Carbon::parse($chartFromDate)->startOfDay();
+            $chartEndDate = Carbon::parse($chartToDate)->endOfDay();
+
+            if ($chartEndDate->lt($chartStartDate)) {
+                $chartRangeMode = false;
+                $chartFromDate = null;
+                $chartToDate = null;
+            }
+        }
+
+        $chartLabels = [];
         $Current_salesData = [];
-        $current_expenseData =[];
-        $currentYear = date('Y');
-        //$previousYear = date('Y') - 1;
+        $current_expenseData = [];
 
-/*
-        //for sales
-        for($i=1; $i<=12; $i++){
-            $data = Sale::where('approved_by',1)->whereYear('created_at',$currentYear);
-            $out = $data->whereMonth('created_at', $i)->sum('total_amount');
-            array_push($Current_salesData,$out);
+        if ($chartRangeMode) {
+            $useDailyBuckets = $chartStartDate->diffInDays($chartEndDate) <= 31;
+            $period = $useDailyBuckets
+                ? CarbonPeriod::create($chartStartDate->copy()->startOfDay(), '1 day', $chartEndDate->copy()->startOfDay())
+                : CarbonPeriod::create($chartStartDate->copy()->startOfMonth(), '1 month', $chartEndDate->copy()->startOfMonth());
+
+            foreach ($period as $bucketDate) {
+                $bucketStart = $useDailyBuckets ? $bucketDate->copy()->startOfDay() : $bucketDate->copy()->startOfMonth();
+                $bucketEnd = $useDailyBuckets ? $bucketDate->copy()->endOfDay() : $bucketDate->copy()->endOfMonth();
+
+                if ($bucketStart->lt($chartStartDate)) {
+                    $bucketStart = $chartStartDate->copy();
+                }
+
+                if ($bucketEnd->gt($chartEndDate)) {
+                    $bucketEnd = $chartEndDate->copy();
+                }
+
+                $chartLabels[] = $useDailyBuckets ? $bucketDate->format('d M Y') : $bucketDate->format('M Y');
+                $Current_salesData[] = Sale::where('approved_by', '>', 0)
+                    ->where('rejected', 0)
+                    ->whereBetween('created_at', [$bucketStart, $bucketEnd])
+                    ->sum('total_amount');
+                $current_expenseData[] = Expense::whereBetween('date', [$bucketStart->toDateString(), $bucketEnd->toDateString()])
+                    ->sum('amount');
+            }
+        } else {
+            for ($i = 1; $i <= 12; $i++) {
+                $chartLabels[] = Carbon::create($selectedChartYear, $i, 1)->format('F');
+                $Current_salesData[] = Sale::where('approved_by', '>', 0)
+                    ->where('rejected', 0)
+                    ->whereYear('created_at', $selectedChartYear)
+                    ->whereMonth('created_at', $i)
+                    ->sum('total_amount');
+                $current_expenseData[] = Expense::whereYear('date', $selectedChartYear)
+                    ->whereMonth('date', $i)
+                    ->sum('amount');
+            }
         }
 
-         //for expenses
-        for($i=1; $i<=12; $i++){
-            $expens_data = Expense::whereYear('created_at',$currentYear);
-            $expense_out = $expens_data->whereMonth('created_at', $i)->
-            sum('amount');
-            array_push($current_expenseData,$expense_out);
-        }
-*/
+        $chartSubtitle = $chartRangeMode
+            ? 'Sales and expenses overview from ' . $chartStartDate->format('d M Y') . ' to ' . $chartEndDate->format('d M Y') . '.'
+            : 'Sales and expenses overview from January to December ' . $selectedChartYear . '.';
 
-        for ($i = 1; $i <= 12; $i++) {
-            // Sales data
-            $monthlySales = Sale::where('approved_by', 1)
-                ->whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $i)
-                ->sum('total_amount');
-            $Current_salesData[] = $monthlySales;
-        
-            // Expense data
-            $monthlyExpenses = Expense::whereYear('created_at', $currentYear)
-                ->whereMonth('created_at', $i)
-                ->sum('amount');
-            $current_expenseData[] = $monthlyExpenses;
-        }
-        $currentMonth = Carbon::now()->startOfMonth();
-        $previousMonth = Carbon::now()->subMonth()->startOfMonth();
-
-        $currentMonthSales = Sale::whereBetween('created_at', [$currentMonth, $currentMonth->copy()->endOfMonth()])->sum('total_amount');
-        $previousMonthSales = Sale::whereBetween('created_at', [$previousMonth, $previousMonth->copy()->endOfMonth()])->sum('total_amount');
-        $monthly_expenses = Expense::whereBetween('date', [$currentMonth, $currentMonth->copy()->endOfMonth()])->sum('amount');
+        $currentMonthSales = Sale::where('approved_by','>',0)
+            ->where('rejected', 0)
+            ->whereBetween('created_at', [$currentMonthStart, $currentMonthEnd])
+            ->sum('total_amount');
+        $previousMonthSales = Sale::where('approved_by','>',0)
+            ->where('rejected', 0)
+            ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
+            ->sum('total_amount');
+        $monthly_expenses = Expense::whereBetween('date', [$currentMonthStart->toDateString(), $currentMonthEnd->toDateString()])->sum('amount');
         //whereMonth('created_at','=', $currentMonth)->value('amount');
 
         if ($previousMonthSales > 0 && $currentMonthSales > 0) {
@@ -117,7 +172,8 @@ class HomeController extends Controller
         return view('home.admin',compact('user_count','customer_count','montly_revenue','order_placed',
                     'full_paid','partial_paid','pending','cancelled','Current_salesData','current_expenseData',
                     'currentYear','approveSales_count','margin','percentageIncrease','monthly_expenses','withholding',
-                    'total_expenses'));
+                    'total_expenses', 'availableChartYears', 'selectedChartYear', 'chartFromDate', 'chartToDate',
+                    'chartLabels', 'chartSubtitle'));
     }
 
 
@@ -126,9 +182,9 @@ class HomeController extends Controller
 
         $rejected = Sale::where('approved_by',0)->where('rejected',1)->count();
         $customer_count = Customer::count();
-        $pending = Order::where('status', 0)->count();
-        $full_paid = Order::where('status', 2)->count();
-        $cancelled = Order::where('status', 3)->count();
+        $pending = Order::where('type_id', 1)->where('status', 0)->count();
+        $full_paid = Order::where('type_id', 1)->where('status', 2)->count();
+        $cancelled = Order::where('type_id', 1)->where('status', 3)->count();
         $total_expenses = Expense::sum('amount');
 
         return view('home.seller', compact(

@@ -19,9 +19,11 @@
 </head>
 
 <body class="hold-transition sidebar-mini">
-    <div class="wrapper">
+    @yield('content')
 
-    </div>
+    <script src="{{ asset('assets/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    @yield('scripts')
 </body>
 
 </html>

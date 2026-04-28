@@ -52,7 +52,7 @@
             </div>
 
             <div class="col-md-6 col-xl-2 mb-4">
-                <a href="{{ route('orders.index') }}" class="text-decoration-none">
+                <a href="{{ route('orders.index', ['status' => 0]) }}" class="text-decoration-none">
                     <div class="dashboard-stat-card">
                         <div class="dashboard-stat-card__body">
                             <div class="dashboard-stat-card__top">
@@ -90,7 +90,7 @@
             </div>
 
             <div class="col-md-6 col-xl-2 mb-4">
-                <a href="{{ route('orders.index') }}" class="text-decoration-none">
+                <a href="{{ route('orders.index', ['status' => 2]) }}" class="text-decoration-none">
                     <div class="dashboard-stat-card dashboard-stat-card--success">
                         <div class="dashboard-stat-card__body">
                             <div class="dashboard-stat-card__top">
@@ -109,7 +109,7 @@
             </div>
 
             <div class="col-md-6 col-xl-2 mb-4">
-                <a href="{{ route('orders.index') }}" class="text-decoration-none">
+                <a href="{{ route('orders.index', ['status' => 3]) }}" class="text-decoration-none">
                     <div class="dashboard-stat-card dashboard-stat-card--danger">
                         <div class="dashboard-stat-card__body">
                             <div class="dashboard-stat-card__top">

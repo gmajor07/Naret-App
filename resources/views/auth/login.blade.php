@@ -172,6 +172,38 @@
         color: #91a0b6;
     }
 
+    .login-modern-password-wrap {
+        position: relative;
+    }
+
+    .login-modern-password-wrap .login-modern-input {
+        padding-right: 52px;
+    }
+
+    .login-modern-password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--login-muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .login-modern-password-toggle:hover,
+    .login-modern-password-toggle:focus {
+        color: var(--login-primary);
+        background: rgba(15, 91, 216, 0.08);
+        outline: none;
+    }
+
     .login-modern-check {
         display: flex;
         align-items: center;
@@ -335,15 +367,20 @@
 
                             <div class="form-group mb-3">
                                 <label for="password" class="login-modern-label">Password</label>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    class="form-control login-modern-input @error('password') is-invalid @enderror"
-                                    name="password"
-                                    required
-                                    autocomplete="current-password"
-                                    placeholder="Enter your password"
-                                >
+                                <div class="login-modern-password-wrap">
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        class="form-control login-modern-input @error('password') is-invalid @enderror"
+                                        name="password"
+                                        required
+                                        autocomplete="current-password"
+                                        placeholder="Enter your password"
+                                    >
+                                    <button type="button" class="login-modern-password-toggle password-toggle" data-target="password" aria-label="Show password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
 
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
@@ -357,6 +394,11 @@
                                 <label class="form-check-label" for="remember">
                                     {{ __('Remember Me') }}
                                 </label>
+                                @if (Route::has('password.request'))
+                                    <a href="{{ route('password.request') }}" class="ml-auto">
+                                        Forgot password?
+                                    </a>
+                                @endif
                             </div>
 
                             <button type="submit" class="btn btn-primary login-modern-btn">
@@ -375,5 +417,19 @@
             </div>
         </div>
     </div>
+    <script>
+        document.querySelectorAll('.password-toggle').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var input = document.getElementById(button.getAttribute('data-target'));
+                var icon = button.querySelector('i');
+                var shouldShow = input.type === 'password';
+
+                input.type = shouldShow ? 'text' : 'password';
+                icon.classList.toggle('fa-eye', !shouldShow);
+                icon.classList.toggle('fa-eye-slash', shouldShow);
+                button.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
+            });
+        });
+    </script>
 </body>
 </html>

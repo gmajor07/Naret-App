@@ -21,14 +21,31 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //$orders = Order::where('type_id', 1)->get();
-        $orders = Order::where('type_id', 1)->orderBy('status', 'asc')->get();
+        $statusFilter = $request->query('status');
+        $statusLabels = [
+            0 => 'Pending',
+            1 => 'Partial Paid',
+            2 => 'Paid',
+            3 => 'Cancelled',
+        ];
+
+        $ordersQuery = Order::with(['customer', 'invoice'])
+            ->where('type_id', 1);
+
+        if ($statusFilter !== null && is_numeric($statusFilter) && array_key_exists((int) $statusFilter, $statusLabels)) {
+            $ordersQuery->where('status', (int) $statusFilter);
+        } else {
+            $statusFilter = null;
+        }
+
+        $orders = $ordersQuery->orderBy('status', 'asc')->latest()->get();
         $customers = Customer::all();
         $products = Product::all();
         $currencies = Currency::all();
-        return view('orders.index',compact('orders','customers','products','currencies'));
+        return view('orders.index',compact('orders','customers','products','currencies', 'statusFilter', 'statusLabels'));
     }
 
 

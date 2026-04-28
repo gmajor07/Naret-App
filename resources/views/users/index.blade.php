@@ -1,6 +1,16 @@
 @extends('layouts.master')
 
 @section('content')
+    <style>
+        .user-status-badge {
+            font-style: normal;
+        }
+
+        .user-status-action {
+            min-width: 92px;
+            font-style: normal;
+        }
+    </style>
 
     <br>
 
@@ -61,19 +71,19 @@
                                 <td> {{ $user -> role -> name }} </td>
 
                                     @if($user -> status == 0)
-                                    <td style="text-align: center;"> <i class="badge badge-danger">Not Active</i>
+                                    <td style="text-align: center;"> <span class="badge badge-danger user-status-badge">Not Active</span>
                                         <form action="{{ route('userActivate', $user->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-outline-success btn-sm">Activate </button>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm user-status-action">Activate</button>
                                         </form>
                                     </td>
                                     @else
-                                    <td style="text-align: center;"> <i class="badge badge-success">Active</i>
+                                    <td style="text-align: center;"> <span class="badge badge-success user-status-badge">Active</span>
                                         <form action="{{ route('deactivate', $user->id) }}" method="POST" style="display:inline;">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" class="btn btn-outline-danger btn-sm">Deactivate </button>
+                                            <button type="submit" class="btn btn-outline-danger btn-sm user-status-action">Deactivate</button>
                                         </form>
                                     </td>
                                     @endif

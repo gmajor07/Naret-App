@@ -215,6 +215,14 @@
                     </p>
                 </a>
             </li>
+            <li class="nav-item has-treeview ">
+                <a href="{{route('reports')}}" class="nav-link">
+                    <i class="nav-icon fas fa-file-excel"></i>
+                    <p>
+                        Reports
+                    </p>
+                </a>
+            </li>
 
 
               @endif

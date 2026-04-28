@@ -138,8 +138,14 @@
 
                                                 <div class="col-md-6">
                                                     <div class="form-group" style="margin-top: -6px;">
-                                                        <label class="col-form-label" for="inputSuccess">Select Product type  <code>*</code></label>
-                                                        <select class="select2" id="selectBox2" name="type_id"  style="width: 100%;"  onchange="showHideInput()">
+                                                        <label class="col-form-label" for="product_type_{{ $product->id }}">Select Product type  <code>*</code></label>
+                                                        <select
+                                                            class="form-control select2 product-type-select"
+                                                            id="product_type_{{ $product->id }}"
+                                                            name="type_id"
+                                                            style="width: 100%;"
+                                                            data-price-target="#product_price_{{ $product->id }}"
+                                                        >
                                                             @foreach($types as $type)
                                                                 @if($type->id  != 3)
                                                                     <option value="{{ $type->id }}" {{ $product->type_id == $type->id ? 'selected' : '' }}>{{ $type->name}}</option>
@@ -149,7 +155,7 @@
                                                     </div>
                                                 </div>
                                                 {{-- @if ($product->type_id == 1) --}}
-                                                    <div class="col-md-6" id="inputBox2">
+                                                    <div class="col-md-6 product-price-box" id="product_price_{{ $product->id }}" style="{{ $product->type_id == 1 ? '' : 'display: none;' }}">
                                                         <div class="form-group">
                                                             <label>Unit Price</label>
                                                             <input type="text" name="price" class="form-control" value="{{ $product->unity_price }}" placeholder="" >
@@ -207,7 +213,7 @@
                             <div class="col-md-6" style="margin-top: -6px;">
                                 <div class="form-group">
                                     <label class="col-form-label" for="inputSuccess">Select type  <code>*</code></label>
-                                    <select class="select2" id="selectBox" name="type_id"  style="width: 100%;"  onchange="showHideInput()">
+                                    <select class="form-control select2 product-type-select" id="selectBox" name="type_id"  style="width: 100%;" data-price-target="#inputBox">
                                         <option selected>Select Type...</option>
                                          @foreach($types as $type)
                                                 @if($type->id  != 3)
@@ -369,24 +375,9 @@
 
         });
 
-    function showHideInput() {
-        var selectBox = document.getElementById("selectBox");
-        var inputBox = document.getElementById("inputBox");
-
-        var selectBox2 = document.getElementById("selectBox2");
-        var inputBox2 = document.getElementById("inputBox2");
-
-        if (selectBox.value === "1") {
-        inputBox.style.display = "block";
-        } else {
-        inputBox.style.display = "none";
-        }
-
-        if (selectBox2.value === "1") {
-        inputBox2.style.display = "block";
-        } else {
-        inputBox2.style.display = "none";
-        }
-    }
+        $('.product-type-select').on('change', function() {
+            var target = $(this).data('price-target');
+            $(target).toggle($(this).val() === '1');
+        }).trigger('change');
     </script>
 @endsection

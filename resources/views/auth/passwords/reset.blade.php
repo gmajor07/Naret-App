@@ -1,6 +1,38 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    .password-field-wrap {
+        position: relative;
+    }
+
+    .password-field-wrap .form-control {
+        padding-right: 44px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #6c757d;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .password-toggle:hover,
+    .password-toggle:focus {
+        color: #0d6efd;
+        background: rgba(13, 110, 253, 0.08);
+        outline: none;
+    }
+</style>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -31,7 +63,12 @@
                             <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
 
                             <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+                                <div class="password-field-wrap">
+                                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+                                    <button type="button" class="password-toggle" data-target="password" aria-label="Show password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
 
                                 @error('password')
                                     <span class="invalid-feedback" role="alert">
@@ -45,7 +82,12 @@
                             <label for="password-confirm" class="col-md-4 col-form-label text-md-end">{{ __('Confirm Password') }}</label>
 
                             <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+                                <div class="password-field-wrap">
+                                    <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+                                    <button type="button" class="password-toggle" data-target="password-confirm" aria-label="Show password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -62,4 +104,21 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.querySelectorAll('.password-toggle').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var input = document.getElementById(button.getAttribute('data-target'));
+            var icon = button.querySelector('i');
+            var shouldShow = input.type === 'password';
+
+            input.type = shouldShow ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !shouldShow);
+            icon.classList.toggle('fa-eye-slash', shouldShow);
+            button.setAttribute('aria-label', shouldShow ? 'Hide password' : 'Show password');
+        });
+    });
+</script>
 @endsection

@@ -6,11 +6,19 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-cart-plus "></i> Product Orders</h3>
+            <h3 class="card-title">
+                <i class="fas fa-cart-plus "></i>
+                {{ $statusFilter !== null ? $statusLabels[(int) $statusFilter] . ' Product Orders' : 'Product Orders' }}
+            </h3>
             <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#addOrder"
                 style="float:right;">
                 <i class="fas fa-plus"> Create Order</i>
             </button>
+            @if ($statusFilter !== null)
+                <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary btn-sm mr-2" style="float:right;">
+                    <i class="fas fa-list"></i> All Orders
+                </a>
+            @endif
         </div>
         <!-- /.card-header -->
         <div class="card-body">

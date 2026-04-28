@@ -15,7 +15,9 @@ class ReportController extends Controller
 
     public function index(){
 
-        return view('reports.index');
+        return view('reports.index', [
+            'reportTypes' => $this->availableReportTypes(),
+        ]);
     }
 
 
@@ -31,6 +33,10 @@ class ReportController extends Controller
         $fromDate = $request->from_date;
         $toDate = $request->to_date;
 
+        if (! array_key_exists($reportType, $this->availableReportTypes())) {
+            return back()->with('error', 'You are not allowed to generate this report type.');
+        }
+
         if ($reportType === 'expenses') {
             return Excel::download(new ExpensesExport($fromDate, $toDate), "Expenses_Report_{$fromDate}_to_{$toDate}.xlsx");
         } 
@@ -43,5 +49,22 @@ class ReportController extends Controller
         }
 
         return back()->with('error', 'Invalid report type selected.');
+    }
+
+    private function availableReportTypes(): array
+    {
+        $types = [
+            'expenses' => 'Expenses',
+        ];
+
+        if (auth()->check() && (int) auth()->user()->role_id === 1) {
+            $types += [
+                'revenue_no_vat' => 'Revenue Without VAT',
+                'revenue_vat' => 'Revenue with VAT',
+                'revenue' => 'All Revenues',
+            ];
+        }
+
+        return $types;
     }
 }

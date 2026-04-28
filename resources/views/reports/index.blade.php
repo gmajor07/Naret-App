@@ -1,6 +1,9 @@
 @extends('layouts.master')
 
 @section('content')
+@php
+    $selectedReportType = array_key_exists(request('report_type'), $reportTypes) ? request('report_type') : '';
+@endphp
 <style>
     .reports-page .dashboard-panel,
     .reports-page .dashboard-stat-card {
@@ -331,7 +334,7 @@
                             <i class="fas fa-file-export"></i>
                             Reports center
                         </span>
-                        <h1 class="dashboard-hero__title">Generate business reports with a cleaner workflow.</h1>
+                        <h1 class="dashboard-hero__title">{{ Auth::user()->role_id == 1 ? 'Generate business reports with a cleaner workflow.' : 'Generate expenses reports with a cleaner workflow.' }}</h1>
                         <p class="dashboard-hero__subtitle">
                             Chagua aina ya report, weka date range, kisha system itakutengenezea export ya Excel
                             iliyo tayari kwa review, sharing, au record keeping.
@@ -342,8 +345,8 @@
                     <div class="dashboard-hero__meta">
                         <div class="dashboard-hero__meta-card">
                             <span class="dashboard-hero__meta-label">Available exports</span>
-                            <div class="dashboard-hero__meta-value">4</div>
-                            <span class="dashboard-hero__meta-note">Expenses, revenue, VAT, and non-VAT summaries</span>
+                            <div class="dashboard-hero__meta-value">{{ count($reportTypes) }}</div>
+                            <span class="dashboard-hero__meta-note">{{ Auth::user()->role_id == 1 ? 'Expenses, revenue, VAT, and non-VAT summaries' : 'Expenses report only' }}</span>
                         </div>
                     </div>
                 </div>
@@ -380,16 +383,15 @@
                                     <label for="report_type">Select report type</label>
                                     <select id="report_type" name="report_type" class="form-control report-select2" required>
                                         <option value=""></option>
-                                        <option value="expenses" {{ request('report_type') === 'expenses' ? 'selected' : '' }}>Expenses</option>
-                                        <option value="revenue_no_vat" {{ request('report_type') === 'revenue_no_vat' ? 'selected' : '' }}>Revenue Without VAT</option>
-                                        <option value="revenue_vat" {{ request('report_type') === 'revenue_vat' ? 'selected' : '' }}>Revenue with VAT</option>
-                                        <option value="revenue" {{ request('report_type') === 'revenue' ? 'selected' : '' }}>All Revenues</option>
+                                        @foreach ($reportTypes as $value => $label)
+                                            <option value="{{ $value }}" {{ $selectedReportType === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group {{ request('report_type') ? '' : 'reports-hidden' }}" id="from_date_group">
+                                        <div class="form-group {{ $selectedReportType ? '' : 'reports-hidden' }}" id="from_date_group">
                                             <label for="from_date">From date</label>
                                             <input
                                                 type="date"
@@ -397,7 +399,7 @@
                                                 name="from_date"
                                                 class="form-control"
                                                 value="{{ request('from_date') }}"
-                                                {{ request('report_type') ? 'required' : '' }}
+                                                {{ $selectedReportType ? 'required' : '' }}
                                             >
                                         </div>
                                     </div>
@@ -482,22 +484,14 @@
                     </div>
                     <div class="dashboard-panel__body">
                         <div class="reports-export-list">
-                            <div class="reports-export-item">
-                                <span class="reports-export-item__label">Financial cost</span>
-                                <span class="reports-export-item__value">Expenses report</span>
-                            </div>
-                            <div class="reports-export-item">
-                                <span class="reports-export-item__label">Sales summary</span>
-                                <span class="reports-export-item__value">All revenues report</span>
-                            </div>
-                            <div class="reports-export-item">
-                                <span class="reports-export-item__label">Tax separated</span>
-                                <span class="reports-export-item__value">Revenue with VAT</span>
-                            </div>
-                            <div class="reports-export-item">
-                                <span class="reports-export-item__label">Tax excluded</span>
-                                <span class="reports-export-item__value">Revenue without VAT</span>
-                            </div>
+                            @foreach ($reportTypes as $value => $label)
+                                <div class="reports-export-item">
+                                    <span class="reports-export-item__label">
+                                        {{ $value === 'expenses' ? 'Financial cost' : ($value === 'revenue_vat' ? 'Tax separated' : ($value === 'revenue_no_vat' ? 'Tax excluded' : 'Sales summary')) }}
+                                    </span>
+                                    <span class="reports-export-item__value">{{ $label }} report</span>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>

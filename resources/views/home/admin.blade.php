@@ -56,7 +56,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-xl-2 mb-4">
-                <a href="{{ route('orders.index') }}" class="text-decoration-none">
+                <a href="{{ route('orders.index', ['status' => 0]) }}" class="text-decoration-none">
                     <div class="dashboard-stat-card">
                         <div class="dashboard-stat-card__body">
                             <div class="dashboard-stat-card__top">
@@ -75,7 +75,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-xl-2 mb-4">
-                <a href="{{ route('paidInvoices') }}" class="text-decoration-none">
+                <a href="{{ route('orders.index', ['status' => 2]) }}" class="text-decoration-none">
                     <div class="dashboard-stat-card dashboard-stat-card--success">
                         <div class="dashboard-stat-card__body">
                             <div class="dashboard-stat-card__top">
@@ -94,7 +94,7 @@
             </div>
 
             <div class="col-12 col-sm-6 col-xl-2 mb-4">
-                <a href="{{ route('orders.index') }}" class="text-decoration-none">
+                <a href="{{ route('orders.index', ['status' => 3]) }}" class="text-decoration-none">
                     <div class="dashboard-stat-card dashboard-stat-card--danger">
                         <div class="dashboard-stat-card__body">
                             <div class="dashboard-stat-card__top">
@@ -157,15 +157,39 @@
                     <div class="dashboard-panel__header">
                         <div>
                             <h3 class="dashboard-panel__title">Revenue vs Expenses</h3>
-                            <p class="dashboard-panel__subtitle">
-                                Sales and expenses overview from January to December {{ $currentYear }}.
-                            </p>
+                            <p class="dashboard-panel__subtitle">{{ $chartSubtitle }}</p>
                         </div>
                     </div>
                     <div class="dashboard-panel__body">
+                        <form action="{{ route('admin') }}" method="GET" class="mb-4">
+                            <div class="row align-items-end">
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <label for="chart_year" class="mb-1">Year</label>
+                                    <select id="chart_year" name="chart_year" class="form-control">
+                                        @foreach ($availableChartYears as $year)
+                                            <option value="{{ $year }}" {{ (int) $selectedChartYear === (int) $year ? 'selected' : '' }}>{{ $year }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <label for="chart_from_date" class="mb-1">From date</label>
+                                    <input type="date" id="chart_from_date" name="chart_from_date" class="form-control" value="{{ $chartFromDate }}">
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <label for="chart_to_date" class="mb-1">To date</label>
+                                    <input type="date" id="chart_to_date" name="chart_to_date" class="form-control" value="{{ $chartToDate }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-filter mr-1"></i> Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                         <div class="dashboard-chart-wrap">
                             <canvas
                                 id="areaChart"
+                                data-labels='{{ json_encode($chartLabels) }}'
                                 data-sales='{{ json_encode($Current_salesData) }}'
                                 data-expenses='{{ json_encode($current_expenseData) }}'
                             ></canvas>
@@ -351,6 +375,7 @@
 <script type="text/javascript">
     $(function () {
         var areaChartElement = $('#areaChart');
+        var chartLabels = JSON.parse(areaChartElement.attr('data-labels') || '[]');
         var currArrayData = JSON.parse(areaChartElement.attr('data-sales') || '[]');
         var expenseData = JSON.parse(areaChartElement.attr('data-expenses') || '[]');
         var areaChartCanvas = areaChartElement.get(0).getContext('2d');
@@ -361,7 +386,7 @@
         });
 
         var areaChartData = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+            labels: chartLabels,
             datasets: [
                 {
                     label: 'Sales',
