@@ -2,8 +2,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Naret Company</title>
-<link rel="icon" type="image/png" href="{{ asset('assets/img/naret_company.png') }}?v={{ filemtime(public_path('assets/img/naret_company.png')) }}">
-<link rel="shortcut icon" type="image/png" href="{{ asset('assets/img/naret_company.png') }}?v={{ filemtime(public_path('assets/img/naret_company.png')) }}">
+<link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v={{ filemtime(public_path('favicon.svg')) }}">
+<link rel="shortcut icon" href="{{ asset('favicon.svg') }}?v={{ filemtime(public_path('favicon.svg')) }}">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome-free/css/all.min.css') }}">
 <!-- Ionicons -->
