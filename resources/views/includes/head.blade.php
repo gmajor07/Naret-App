@@ -3,7 +3,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <title>Naret Company</title>
 <link rel="icon" type="image/svg+xml" href="{{ asset('assets/img/favicon.svg') }}?v={{ filemtime(public_path('assets/img/favicon.svg')) }}">
-<link rel="shortcut icon" type="image/svg+xml" href="{{ asset('assets/img/favicon.svg') }}?v={{ filemtime(public_path('assets/img/favicon.svg')) }}">
+<link rel="shortcut icon" type="image/svg+xml" href="{{ asset('assets/img/naret.jpg') }}?v={{ filemtime(public_path('assets/img/favicon.svg')) }}">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome-free/css/all.min.css') }}">
 <!-- Ionicons -->
