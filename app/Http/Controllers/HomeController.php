@@ -70,7 +70,8 @@ class HomeController extends Controller
         $cancelled = Order::where('type_id', 1)->where('status', 3)->count();
         $approveSales_count = Sale::where('approved_by',0)->where('rejected',0)->count();
         $margin = Product::where('stock_quantity','<', 50)->count();
-        $total_expenses = Expense::sum('amount');
+        $monthly_expenses = Expense::whereBetween('date', [$currentMonthStart->toDateString(), $currentMonthEnd->toDateString()])->sum('amount');
+        $total_expenses = $monthly_expenses;
         $withholding = Invoice::whereBetween('created_at', [$startOfYear, $endOfYear])->whereIn ('payment_status',[1,2])->sum('withholding_tax');
 
         $oldestSaleDate = Sale::where('approved_by', '>', 0)->where('rejected', 0)->min('created_at');
@@ -156,7 +157,6 @@ class HomeController extends Controller
             ->where('rejected', 0)
             ->whereBetween('created_at', [$previousMonthStart, $previousMonthEnd])
             ->sum('total_amount');
-        $monthly_expenses = Expense::whereBetween('date', [$currentMonthStart->toDateString(), $currentMonthEnd->toDateString()])->sum('amount');
         //whereMonth('created_at','=', $currentMonth)->value('amount');
 
         if ($previousMonthSales > 0 && $currentMonthSales > 0) {
@@ -185,7 +185,9 @@ class HomeController extends Controller
         $pending = Order::where('type_id', 1)->where('status', 0)->count();
         $full_paid = Order::where('type_id', 1)->where('status', 2)->count();
         $cancelled = Order::where('type_id', 1)->where('status', 3)->count();
-        $total_expenses = Expense::sum('amount');
+        $currentMonthStart = Carbon::now()->startOfMonth();
+        $currentMonthEnd = Carbon::now()->endOfMonth();
+        $total_expenses = Expense::whereBetween('date', [$currentMonthStart->toDateString(), $currentMonthEnd->toDateString()])->sum('amount');
 
         return view('home.seller', compact(
             'rejected',

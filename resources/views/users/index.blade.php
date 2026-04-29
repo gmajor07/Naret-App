@@ -4,11 +4,65 @@
     <style>
         .user-status-badge {
             font-style: normal;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 92px;
+            min-height: 38px;
+            padding: 0.45rem 0.9rem;
+            margin-right: 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+
+        .user-status-badge.badge-success {
+            border: 1px solid rgba(39, 120, 240, 0.34);
+            background: rgba(234, 243, 255, 0.96);
+            color: #0f5bd8;
+        }
+
+        .user-status-badge.badge-danger {
+            border: 1px solid rgba(214, 51, 82, 0.26);
+            background: rgba(255, 224, 228, 0.92);
+            color: #d63352;
         }
 
         .user-status-action {
-            min-width: 92px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 106px;
+            min-height: 38px;
+            padding: 0.45rem 0.9rem;
+            border-radius: 12px;
             font-style: normal;
+            font-weight: 800;
+            line-height: 1.2;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+        }
+
+        .user-status-action.btn-outline-primary {
+            border-color: rgba(39, 120, 240, 0.34);
+            background: rgba(234, 243, 255, 0.96);
+            color: #0f5bd8;
+        }
+
+        .user-status-action.btn-outline-primary:hover,
+        .user-status-action.btn-outline-primary:focus {
+            border-color: #0f5bd8;
+            background: #0f5bd8;
+            color: #ffffff;
+            box-shadow: 0 12px 22px rgba(15, 91, 216, 0.18);
+            transform: translateY(-1px);
+        }
+
+        .user-status-action.btn-outline-danger:hover,
+        .user-status-action.btn-outline-danger:focus {
+            box-shadow: 0 12px 22px rgba(214, 51, 82, 0.16);
+            transform: translateY(-1px);
         }
     </style>
 

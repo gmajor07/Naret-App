@@ -1,6 +1,11 @@
 @extends('layouts.master')
 
 @section('content')
+@php
+    $chartRevenueTotal = collect($Current_salesData)->sum();
+    $chartExpenseTotal = collect($current_expenseData)->sum();
+    $chartNetTotal = $chartRevenueTotal - $chartExpenseTotal;
+@endphp
 <div class="dashboard-page">
     <div class="container-fluid">
         <div class="dashboard-hero">
@@ -49,7 +54,7 @@
                                     <i class="fas fa-donate"></i>
                                 </span>
                             </div>
-                            <div class="dashboard-stat-card__meta">All time total expenses</div>
+                            <div class="dashboard-stat-card__meta">Current month expenses</div>
                         </div>
                     </div>
                 </a>
@@ -153,36 +158,72 @@
 
         <div class="row">
             <div class="col-xl-8 mb-4">
-                <div class="dashboard-panel">
-                    <div class="dashboard-panel__header">
+                <div class="dashboard-panel dashboard-revenue-panel">
+                    <div class="dashboard-panel__header dashboard-revenue-panel__header">
                         <div>
+                            <span class="dashboard-revenue-panel__eyebrow">
+                                <i class="fas fa-chart-area"></i>
+                                Financial trend
+                            </span>
                             <h3 class="dashboard-panel__title">Revenue vs Expenses</h3>
                             <p class="dashboard-panel__subtitle">{{ $chartSubtitle }}</p>
                         </div>
+                        <div class="dashboard-revenue-panel__badge">
+                            <span>{{ count($chartLabels) }}</span>
+                            {{ count($chartLabels) === 1 ? 'period' : 'periods' }}
+                        </div>
                     </div>
                     <div class="dashboard-panel__body">
-                        <form action="{{ route('admin') }}" method="GET" class="mb-4">
-                            <div class="row align-items-end">
-                                <div class="col-md-3 mb-3 mb-md-0">
-                                    <label for="chart_year" class="mb-1">Year</label>
-                                    <select id="chart_year" name="chart_year" class="form-control">
-                                        @foreach ($availableChartYears as $year)
-                                            <option value="{{ $year }}" {{ (int) $selectedChartYear === (int) $year ? 'selected' : '' }}>{{ $year }}</option>
-                                        @endforeach
-                                    </select>
+                        <div class="dashboard-revenue-summary">
+                            <div class="dashboard-revenue-summary__item dashboard-revenue-summary__item--revenue">
+                                <span class="dashboard-revenue-summary__label">Revenue</span>
+                                <strong>TZS {{ number_format($chartRevenueTotal, 0, '.', ',') }}</strong>
+                            </div>
+                            <div class="dashboard-revenue-summary__item dashboard-revenue-summary__item--expenses">
+                                <span class="dashboard-revenue-summary__label">Expenses</span>
+                                <strong>TZS {{ number_format($chartExpenseTotal, 0, '.', ',') }}</strong>
+                            </div>
+                            <div class="dashboard-revenue-summary__item {{ $chartNetTotal >= 0 ? 'dashboard-revenue-summary__item--profit' : 'dashboard-revenue-summary__item--loss' }}">
+                                <span class="dashboard-revenue-summary__label">{{ $chartNetTotal >= 0 ? 'Net profit' : 'Net loss' }}</span>
+                                <strong>TZS {{ number_format(abs($chartNetTotal), 0, '.', ',') }}</strong>
+                            </div>
+                        </div>
+
+                        <form action="{{ route('admin') }}" method="GET" class="dashboard-date-filter">
+                            <div class="dashboard-date-filter__grid">
+                                <div class="dashboard-date-filter__field">
+                                    <label for="chart_year">Year</label>
+                                    <div class="dashboard-date-filter__control">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <select id="chart_year" name="chart_year" class="form-control">
+                                            @foreach ($availableChartYears as $year)
+                                                <option value="{{ $year }}" {{ (int) $selectedChartYear === (int) $year ? 'selected' : '' }}>{{ $year }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-3 mb-3 mb-md-0">
-                                    <label for="chart_from_date" class="mb-1">From date</label>
-                                    <input type="date" id="chart_from_date" name="chart_from_date" class="form-control" value="{{ $chartFromDate }}">
+                                <div class="dashboard-date-filter__field">
+                                    <label for="chart_from_date">From date</label>
+                                    <div class="dashboard-date-filter__control">
+                                        <i class="fas fa-calendar-day"></i>
+                                        <input type="date" id="chart_from_date" name="chart_from_date" class="form-control" value="{{ $chartFromDate }}">
+                                    </div>
                                 </div>
-                                <div class="col-md-3 mb-3 mb-md-0">
-                                    <label for="chart_to_date" class="mb-1">To date</label>
-                                    <input type="date" id="chart_to_date" name="chart_to_date" class="form-control" value="{{ $chartToDate }}">
+                                <div class="dashboard-date-filter__field">
+                                    <label for="chart_to_date">To date</label>
+                                    <div class="dashboard-date-filter__control">
+                                        <i class="fas fa-calendar-check"></i>
+                                        <input type="date" id="chart_to_date" name="chart_to_date" class="form-control" value="{{ $chartToDate }}">
+                                    </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <button type="submit" class="btn btn-primary btn-block">
-                                        <i class="fas fa-filter mr-1"></i> Apply
+                                <div class="dashboard-date-filter__actions">
+                                    <button type="submit" class="dashboard-date-filter__submit">
+                                        <i class="fas fa-filter"></i>
+                                        Apply
                                     </button>
+                                    <a href="{{ route('admin') }}" class="dashboard-date-filter__reset" title="Reset chart dates">
+                                        <i class="fas fa-redo-alt"></i>
+                                    </a>
                                 </div>
                             </div>
                         </form>
@@ -379,6 +420,10 @@
         var currArrayData = JSON.parse(areaChartElement.attr('data-sales') || '[]');
         var expenseData = JSON.parse(areaChartElement.attr('data-expenses') || '[]');
         var areaChartCanvas = areaChartElement.get(0).getContext('2d');
+        var isDarkMode = document.body.classList.contains('dark-mode');
+        var chartTextColor = isDarkMode ? '#cbd5e1' : '#667892';
+        var chartTitleColor = isDarkMode ? '#e5eefc' : '#10233f';
+        var chartGridColor = isDarkMode ? 'rgba(148, 163, 184, 0.14)' : 'rgba(15, 91, 216, 0.08)';
 
         $('.dashboard-progress-target').each(function () {
             var width = parseFloat($(this).attr('data-width') || '0');
@@ -389,27 +434,32 @@
             labels: chartLabels,
             datasets: [
                 {
-                    label: 'Sales',
-                    backgroundColor: 'rgba(39, 120, 240, 0.75)',
+                    label: 'Revenue',
+                    type: 'bar',
+                    backgroundColor: 'rgba(39, 120, 240, 0.78)',
                     borderColor: 'rgba(15, 91, 216, 1)',
-                    borderWidth: 1,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#0f5bd8',
-                    pointBorderColor: '#ffffff',
-                    pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: '#0f5bd8',
+                    borderWidth: 0,
+                    hoverBackgroundColor: 'rgba(15, 91, 216, 0.88)',
+                    pointRadius: 0,
+                    borderSkipped: false,
+                    barPercentage: 0.72,
+                    categoryPercentage: 0.58,
                     data: currArrayData
                 },
                 {
                     label: 'Expenses',
-                    backgroundColor: 'rgba(102, 120, 146, 0.45)',
-                    borderColor: 'rgba(102, 120, 146, 0.95)',
-                    borderWidth: 1,
+                    type: 'line',
+                    backgroundColor: 'rgba(236, 95, 95, 0.10)',
+                    borderColor: '#ec5f5f',
+                    borderWidth: 3,
                     pointRadius: 4,
-                    pointBackgroundColor: '#667892',
+                    pointBackgroundColor: '#ec5f5f',
                     pointBorderColor: '#ffffff',
                     pointHoverBackgroundColor: '#ffffff',
-                    pointHoverBorderColor: '#667892',
+                    pointHoverBorderColor: '#ec5f5f',
+                    pointBorderWidth: 2,
+                    lineTension: 0.35,
+                    fill: true,
                     data: expenseData
                 }
             ]
@@ -418,30 +468,58 @@
         var areaChartOptions = {
             maintainAspectRatio: false,
             responsive: true,
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(8, 42, 102, 0.94)',
+                titleFontColor: '#ffffff',
+                bodyFontColor: '#dbeafe',
+                borderColor: 'rgba(255, 255, 255, 0.12)',
+                borderWidth: 1,
+                cornerRadius: 10,
+                displayColors: true,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+                        var value = Number(tooltipItem.yLabel || 0).toLocaleString();
+                        return label + ': TZS ' + value;
+                    }
+                }
+            },
             legend: {
                 display: true,
                 labels: {
-                    fontColor: '#10233f'
+                    fontColor: chartTitleColor,
+                    boxWidth: 10,
+                    padding: 18,
+                    usePointStyle: true
                 }
             },
             scales: {
                 xAxes: [{
+                    stacked: false,
                     gridLines: {
-                        display: false
+                        display: false,
+                        drawBorder: false
                     },
                     ticks: {
-                        fontColor: '#667892'
+                        fontColor: chartTextColor,
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 8
                     }
                 }],
                 yAxes: [{
                     gridLines: {
-                        color: 'rgba(15, 91, 216, 0.08)'
+                        color: chartGridColor,
+                        drawBorder: false,
+                        zeroLineColor: 'rgba(15, 91, 216, 0.12)'
                     },
                     ticks: {
                         beginAtZero: true,
-                        fontColor: '#667892',
+                        fontColor: chartTextColor,
                         callback: function(value) {
-                            return value.toLocaleString();
+                            return Number(value).toLocaleString();
                         }
                     }
                 }]

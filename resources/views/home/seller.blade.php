@@ -140,7 +140,7 @@
                                     <i class="fas fa-wallet"></i>
                                 </span>
                             </div>
-                            <div class="dashboard-stat-card__meta">All time total expenses</div>
+                            <div class="dashboard-stat-card__meta">Current month expenses</div>
                         </div>
                     </div>
                 </a>
