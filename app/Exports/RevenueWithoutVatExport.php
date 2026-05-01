@@ -31,21 +31,18 @@ class RevenueWithoutVatExport extends DefaultValueBinder implements FromCollecti
     */
     public function collection()
     {
-        //return Sale::whereBetween('created_at', [$this->startDate, $this->endDate])->where('approved_by',1)->get();
-        //return $sales = Sale::where(fn($q) => 
-                      // $q->whereBetween('created_at', [$this->startDate, $this->endDate])
-                     // ->where('approved_by', 1) )->get();
-         if (!$this->sales) {
-        $this->sales = Sale::whereBetween('created_at', [$this->startDate, $this->endDate])
-                           ->where('approved_by', 1)
-                           ->whereHas('invoice', function ($query) {
-                               $query->where('vat', 0); // adjust as per your column
-                           })
-                           ->get();
-    }
+        if (!$this->sales) {
+            $this->sales = Sale::whereBetween('created_at', [$this->startDate, $this->endDate])
+                               ->where('approved_by', 1)
+                               ->with(['customer', 'order', 'invoice'])
+                               ->whereHas('invoice', function ($query) {
+                                   $query->where('vat', 0);
+                               })
+                               ->lazy()
+                               ->collect();
+        }
 
-    return $this->sales;
-    
+        return $this->sales;
     }
 
     public function headings(): array

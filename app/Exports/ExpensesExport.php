@@ -20,6 +20,7 @@ class ExpensesExport extends DefaultValueBinder implements FromCollection, WithH
 {
     protected $startDate;
     protected $endDate;
+    protected $cachedCollection;
 
     public function __construct($startDate, $endDate)
     {
@@ -32,7 +33,10 @@ class ExpensesExport extends DefaultValueBinder implements FromCollection, WithH
     */
     public function collection()
     {
-        return Expense::whereBetween('date', [$this->startDate, $this->endDate])->get();
+        if (!$this->cachedCollection) {
+            $this->cachedCollection = Expense::whereBetween('date', [$this->startDate, $this->endDate])->lazy()->collect();
+        }
+        return $this->cachedCollection;
     }
 
     public function headings(): array

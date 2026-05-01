@@ -376,7 +376,7 @@
                     </div>
                     <div class="dashboard-panel__body">
                         <div class="reports-form-card">
-                            <form action="{{ route('generateReports') }}" method="GET">
+                            <form action="{{ route('generateReports') }}" method="POST">
                                 @csrf
 
                                 <div class="form-group">

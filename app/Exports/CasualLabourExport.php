@@ -18,6 +18,7 @@ class CasualLabourExport extends DefaultValueBinder implements FromCollection, W
 
     protected $startDate;
     protected $endDate;
+    protected $cachedCollection;
 
     public function __construct($startDate = null, $endDate = null)
     {
@@ -30,13 +31,17 @@ class CasualLabourExport extends DefaultValueBinder implements FromCollection, W
     */
     public function collection()
     {
-        $query = CasualLabour::with('orders.customer', 'orders.invoice');
+        if (!$this->cachedCollection) {
+            $query = CasualLabour::with('orders.customer', 'orders.invoice');
 
-        if ($this->startDate && $this->endDate) {
-            $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
+            if ($this->startDate && $this->endDate) {
+                $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
+            }
+
+            $this->cachedCollection = $query->lazy()->collect();
         }
 
-        return $query->get();
+        return $this->cachedCollection;
     }
 
     public function headings(): array

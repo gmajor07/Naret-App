@@ -105,7 +105,7 @@ Route::middleware(['auth'])->group(function () {
 
     // **Report Routes**
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
-    Route::get('/generateReports', [ReportController::class, 'generateReport'])->name('generateReports');
+    Route::post('/generateReports', [ReportController::class, 'generateReport'])->name('generateReports');
 
     // **Print Invoices**
     Route::get('/printNaretInvoice/{id}/{status}', [InvoiceController::class, 'printNaretInvoice'])->name('printNaretInvoice');
