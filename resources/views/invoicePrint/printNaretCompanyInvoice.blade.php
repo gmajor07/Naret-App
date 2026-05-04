@@ -5,6 +5,7 @@
     <title>Invoice</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- NARET COMPANY LIMITED Invoice (VAT) -->
 
     <style>
         body {
@@ -86,9 +87,9 @@
 
             <td>
                 @if($invoice->vat > 0)
-                    <img src="https://naret.co.tz/naret-app/assets/img/naret_company.jpg" width="60%" height="130px">
+                    <img src="{{ asset('assets/img/naret_company.jpg') }}" width="60%" height="130px">
                 @else
-                    <img src="https://naret.co.tz/naret-app/assets/img/naret.jpg" width="60%" height="130px">
+                    <img src="{{ asset('assets/img/naret.jpg') }}" width="60%" height="130px">
                 @endif
             </td>
         </tr>

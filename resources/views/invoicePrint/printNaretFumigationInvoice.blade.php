@@ -5,6 +5,7 @@
     <title>Invoice</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <!-- NARET FUMIGATION AND GENERAL CLEANNESS Invoice (Non-VAT) -->
 
     <style>
         body {
@@ -60,7 +61,7 @@
 <body>
     <!-- ✅ Text Watermark -->
     <div class="text-watermark">
-        NARET FUMIGATION AND<br>GENERAL CLEANNESS kiiiiiiiiiiiii
+        NARET FUMIGATION AND<br>GENERAL CLEANNESS
     </div>
 
     <!-- ✅ Invoice Content -->
@@ -72,12 +73,17 @@
                 </td>
             @else
                 <td style="text-align: left; width:60%;">
-                    <h1 style="margin-left:30px;">PROFOMA INVOICE kiiiiiiiiiiiii</h1>
+                    <h1 style="margin-left:30px;">PROFOMA INVOICE</h1>
                 </td>
             @endif
 
             <td>
-                <img src="{{ 'file://' . public_path('assets/img/naret.jpg') }}" width="60%" height="130px">
+                @php
+                    $imgPath = public_path('assets/img/naret.jpg');
+                    $imgData = base64_encode(file_get_contents($imgPath));
+                    $imgSrc = 'data:image/jpeg;base64,' . $imgData;
+                @endphp
+                <img src="{{ $imgSrc }}" width="60%" height="130px">
             </td>
         </tr>
     </table>
@@ -212,7 +218,7 @@
     <table style="margin-top: 20px; width: 100%;">
         <tr>
             <td colspan="4"></td>
-            <td><b>PAID AMOUNT kiiiiiiiiiiiii</b></td>
+            <td><b>PAID AMOUNT</b></td>
             <td style="color: #0066cc;"><b>{{ $invoice->currency_id == 2 ? 'USD $' : 'TZs.' }} {{ number_format($invoice->amount_paid, 2, '.', ',') }}</b></td>
         </tr>
         <tr>
@@ -228,7 +234,7 @@
         <h2>Payment Method:</h2>
         <p>NBC: SAMORA BRANCH </p>
         <p>ACC: <b>012103024077</b></p>
-        <p>Name: <b>NARET kiiiiiiiiiiiii AND GENERAL CLEANNESS</b></p>
+        <p>Name: <b>NARET FUMIGATION AND GENERAL CLEANNESS</b></p>
 
         <hr style="height:2px; background-color:#bbb;">
 

@@ -4,7 +4,11 @@
 
 <style>
     /* Ensure dropdown menus appear above all other elements */
-    .card-body, .tab-content, .table-responsive, .table-responsive-table, .card {
+    .card-body, .card, .tab-content, .table-responsive, .table-responsive-table, .dataTables_wrapper, .dataTables_scroll, .dataTables_scrollBody, .content-wrapper, .content {
+        overflow: visible !important;
+    }
+    
+    table, thead, tbody, tr, td, th {
         overflow: visible !important;
     }
     
@@ -24,10 +28,6 @@
     .btn-group:hover .dropdown-menu,
     .dropdown-menu.show {
         display: block;
-    }
-    
-    table td {
-        overflow: visible !important;
     }
 </style>
 
