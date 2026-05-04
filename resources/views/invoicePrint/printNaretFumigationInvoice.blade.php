@@ -72,12 +72,12 @@
                 </td>
             @else
                 <td style="text-align: left; width:60%;">
-                    <h1 style="margin-left:30px;">PROFOMA INVOICE with kiloooooos</h1>
+                    <h1 style="margin-left:30px;">PROFOMA INVOICE</h1>
                 </td>
             @endif
 
             <td>
-                <img src="https://naret.co.tz/naret-app/assets/img/naret.jpg" width="60%" height="130px">
+                <img src="{{ 'file://' . public_path('assets/img/naret.jpg') }}" width="60%" height="130px">
             </td>
         </tr>
     </table>
@@ -228,7 +228,7 @@
         <h2>Payment Method:</h2>
         <p>NBC: SAMORA BRANCH </p>
         <p>ACC: <b>012103024077</b></p>
-        <p>Name: <b>NARET FUMIGATION AND GENERAL CLEANNESS</b></p>
+        <p>Name: <b>NARET kiiiiiiiiiiiii AND GENERAL CLEANNESS</b></p>
 
         <hr style="height:2px; background-color:#bbb;">
 

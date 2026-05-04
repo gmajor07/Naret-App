@@ -3,20 +3,27 @@
 @section('content')
 
 <style>
-    /* Fix dropdown menu visibility in responsive tables */
-    .table-responsive-table {
+    /* Ensure dropdown menus appear above all other elements */
+    .card-body, .tab-content, .table-responsive, .table-responsive-table, .card {
         overflow: visible !important;
     }
     
     .btn-group {
         position: relative;
-        z-index: 1000;
+        z-index: 9999;
     }
     
     .dropdown-menu {
         position: absolute;
-        z-index: 1000;
+        z-index: 99999 !important;
         overflow: visible;
+        display: none;
+    }
+    
+    .btn-group.show .dropdown-menu,
+    .btn-group:hover .dropdown-menu,
+    .dropdown-menu.show {
+        display: block;
     }
     
     table td {
