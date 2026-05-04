@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
     <title>Invoice</title>
@@ -17,16 +16,18 @@
         .text-watermark {
             position: fixed;
             top: 35%;
-            font-size: 60px;
+           /*  left: -25%;  *//* Shift more to the left */
+            font-size: 60px; /* Slightly smaller to ensure full visibility */
             color: rgba(0, 0, 0, 0.05);
             transform: rotate(-45deg);
-            width: 100%;
+            width: 100%; /* Extend width to give it room */
             text-align: center;
             z-index: -1;
             pointer-events: none;
             font-weight: bold;
             white-space: nowrap;
         }
+
 
         table {
             width: 100%;
@@ -42,8 +43,6 @@
 
         th {
             border-top: 1px solid #ddd;
-            background-color: #1b5e85;
-            color: white;
         }
 
         .footer {
@@ -57,7 +56,6 @@
         @page {
             margin: 30px;
         }
-
     </style>
 </head>
 
@@ -200,7 +198,7 @@
                 @foreach ($invoice->order->casual_labour as $key => $casual)
                     <tr>
                         <td>{{ ++$key }}</td>
-                        <td>{{ $casual->description }} @if($invoice->order->description) {{ $invoice->order->description }} @endif</td>
+                        <td>{{ $casual->description }}</td>
                         <td>{{ number_format($casual->labour_charge, 2, '.', ',') }}</td>
                         <td>{{ number_format($casual->administration_fee, 2, '.', ',') }}</td>
                         <td>{{ $casual->quantity }}</td>
@@ -212,7 +210,7 @@
                     <tr>
                         <td>{{ ++$key }}</td>
                         <td>Fumigation</td>
-                        <td>{{ $fumigation->description }} @if($invoice->order->description) {{ $invoice->order->description }} @endif</td>
+                        <td>{{ $fumigation->description }}</td>
                         <td>{{ $fumigation->item_quantity }}</td>
                         <td>{{ number_format($fumigation->unit_price, 2, '.', ',') }}</td>
                         <td>{{ number_format($fumigation->unit_price * $fumigation->item_quantity, 2, '.', ',') }}</td>
