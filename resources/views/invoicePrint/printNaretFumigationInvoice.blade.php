@@ -60,7 +60,7 @@
 <body>
     <!-- ✅ Text Watermark -->
     <div class="text-watermark">
-        NARET FUMIGATION AND<br>GENERAL CLEANNESS
+        NARET FUMIGATION AND<br>GENERAL CLEANNESS kiiiiiiiiiiiii
     </div>
 
     <!-- ✅ Invoice Content -->
@@ -72,7 +72,7 @@
                 </td>
             @else
                 <td style="text-align: left; width:60%;">
-                    <h1 style="margin-left:30px;">PROFOMA INVOICE</h1>
+                    <h1 style="margin-left:30px;">PROFOMA INVOICE kiiiiiiiiiiiii</h1>
                 </td>
             @endif
 
@@ -212,7 +212,7 @@
     <table style="margin-top: 20px; width: 100%;">
         <tr>
             <td colspan="4"></td>
-            <td><b>PAID AMOUNT</b></td>
+            <td><b>PAID AMOUNT kiiiiiiiiiiiii</b></td>
             <td style="color: #0066cc;"><b>{{ $invoice->currency_id == 2 ? 'USD $' : 'TZs.' }} {{ number_format($invoice->amount_paid, 2, '.', ',') }}</b></td>
         </tr>
         <tr>
