@@ -40,10 +40,21 @@
             padding-bottom: 12px;
             border-bottom: 1px solid #ddd;
             text-align: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         th {
             border-top: 1px solid #ddd;
+        }
+
+        /* Make description columns responsive */
+        td:nth-child(3) {
+            max-width: 200px;
+            white-space: normal;
+            text-align: left;
+            vertical-align: middle;
         }
 
         .footer {

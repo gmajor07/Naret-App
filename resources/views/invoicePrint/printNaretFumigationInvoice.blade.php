@@ -55,6 +55,16 @@
         padding: 10px;
         border: 1px solid #ddd;
         text-align: center;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .items td.text-left {
+        text-align: left;
+        max-width: 200px;
+        white-space: normal;
+        vertical-align: middle;
     }
 
     .text-left {
