@@ -72,7 +72,7 @@
                 </td>
             @else
                 <td style="text-align: left; width:60%;">
-                    <h1 style="margin-left:30px;">PROFOMA INVOICE</h1>
+                    <h1 style="margin-left:30px;">PROFOMA INVOICE with kiloooooos</h1>
                 </td>
             @endif
 
