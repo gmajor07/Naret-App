@@ -2,6 +2,27 @@
 
 @section('content')
 
+<style>
+    /* Fix dropdown menu visibility in responsive tables */
+    .table-responsive-table {
+        overflow: visible !important;
+    }
+    
+    .btn-group {
+        position: relative;
+        z-index: 1000;
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        z-index: 1000;
+        overflow: visible;
+    }
+    
+    table td {
+        overflow: visible !important;
+    }
+</style>
 
 <br>
 <div class="row">

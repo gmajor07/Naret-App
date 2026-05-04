@@ -11,12 +11,12 @@
         color: #333;
     }
 
-    .header-table, .info-table, .items-table {
+    table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .header-table td {
+    .header td {
         vertical-align: top;
     }
 
@@ -33,7 +33,8 @@
         margin-top: 20px;
     }
 
-    .info-box {
+    .info td {
+        vertical-align: top;
         font-size: 12px;
         line-height: 1.6;
     }
@@ -43,14 +44,14 @@
         padding-right: 10px;
     }
 
-    .items-table th {
+    .items th {
         background: #1b5e85;
         color: #fff;
         padding: 10px;
         border: 1px solid #ddd;
     }
 
-    .items-table td {
+    .items td {
         padding: 10px;
         border: 1px solid #ddd;
         text-align: center;
@@ -91,30 +92,34 @@
 
 <!-- WATERMARK -->
 <div class="watermark">
-    {{ $invoice->vat > 0 ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS' }}
+    {{ $invoice->vat > 0 
+        ? 'NARET COMPANY LIMITED' 
+        : 'NARET FUMIGATION AND GENERAL CLEANNESS' }}
 </div>
 
 <!-- HEADER -->
-<table class="header-table">
-    <tr>
-        <td class="title">
-            {{ $status == 'invoice' ? 'INVOICE' : 'PROFORMA INVOICE' }}
-        </td>
+<table class="header">
+<tr>
+    <td class="title">
+        {{ $status == 'invoice' ? 'INVOICE' : 'PROFORMA INVOICE' }}
+    </td>
 
-        <td class="logo">
-            <img src="{{ $invoice->vat > 0 
-                ? 'https://naret.co.tz/naret-app/assets/img/naret_company.jpg' 
-                : 'https://naret.co.tz/naret-app/assets/img/naret.jpg' }}"
-                width="160">
-        </td>
-    </tr>
+    <td class="logo">
+        <img src="{{ public_path(
+            $invoice->vat > 0 
+            ? 'assets/img/naret_company.jpg' 
+            : 'assets/img/naret.jpg'
+        ) }}" width="160">
+    </td>
+</tr>
 </table>
 
-<!-- INFO -->
-<table class="info-table section">
+<!-- INFO SECTION -->
+<table class="info section">
 <tr>
+
     <!-- CUSTOMER -->
-    <td width="40%" class="info-box">
+    <td width="40%">
         <b>{{ $invoice->customer->name }}</b><br>
         Email: {{ $invoice->customer->email }}<br>
         Phone: {{ $invoice->customer->phone }}<br>
@@ -124,7 +129,7 @@
     </td>
 
     <!-- INVOICE DETAILS -->
-    <td width="20%" class="info-box divider">
+    <td width="20%" class="divider">
         @if($invoice->order?->po_number)
             <b>PO:</b> {{ $invoice->order->po_number }}<br>
         @endif
@@ -134,8 +139,11 @@
     </td>
 
     <!-- COMPANY -->
-    <td width="40%" class="info-box">
-        <b>{{ $invoice->vat > 0 ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS' }}</b><br>
+    <td width="40%">
+        <b>{{ $invoice->vat > 0 
+            ? 'NARET COMPANY LIMITED' 
+            : 'NARET FUMIGATION AND GENERAL CLEANNESS' }}</b><br>
+
         Opposite Gate 5, Shimo la Udongo Road<br>
         P.O Box 6230, Dar es Salaam<br>
         Phone: 0753995084 / 0754689775<br>
@@ -143,40 +151,59 @@
         TIN: 155884452<br>
         VRN: +40039930
     </td>
+
 </tr>
 </table>
 
 <!-- ITEMS TABLE -->
-<table class="items-table section">
+<table class="items section">
 <thead>
 <tr>
     <th>S/N</th>
     <th class="text-left">Description</th>
-    <th>Labour</th>
-    <th>Admin</th>
-    <th>Qty</th>
+    <th>Labour Charges</th>
+    <th>Administration Fee</th>
+    <th>Quantity</th>
     <th>Amount</th>
 </tr>
 </thead>
 
 <tbody>
 
-@foreach ($invoice->order->casual_labour ?? [] as $key => $item)
-<tr>
-    <td>{{ $key + 1 }}</td>
-    <td class="text-left">{{ $item->description }}</td>
-    <td>{{ number_format($item->labour_charge,2) }}</td>
-    <td>{{ number_format($item->administration_fee,2) }}</td>
-    <td>{{ $item->quantity }}</td>
-    <td>{{ number_format(($item->labour_charge + $item->administration_fee) * $item->quantity,2) }}</td>
-</tr>
-@endforeach
+@php $i = 1; @endphp
+
+{{-- COMPANY DATA --}}
+@if(!empty($invoice->order->casual_labour) && count($invoice->order->casual_labour))
+    @foreach ($invoice->order->casual_labour as $item)
+        <tr>
+            <td>{{ $i++ }}</td>
+            <td class="text-left">{{ $item->description }}</td>
+            <td>{{ number_format($item->labour_charge,2) }}</td>
+            <td>{{ number_format($item->administration_fee,2) }}</td>
+            <td>{{ $item->quantity }}</td>
+            <td>{{ number_format(($item->labour_charge + $item->administration_fee) * $item->quantity,2) }}</td>
+        </tr>
+    @endforeach
+
+{{-- FUMIGATION DATA --}}
+@elseif(!empty($invoice->order->fumigations) && count($invoice->order->fumigations))
+    @foreach ($invoice->order->fumigations as $item)
+        <tr>
+            <td>{{ $i++ }}</td>
+            <td class="text-left">{{ $item->description }}</td>
+            <td>{{ number_format($item->unit_price,2) }}</td>
+            <td>0.00</td>
+            <td>{{ $item->item_quantity }}</td>
+            <td>{{ number_format($item->unit_price * $item->item_quantity,2) }}</td>
+        </tr>
+    @endforeach
+@endif
 
 </tbody>
 </table>
 
 <!-- TOTALS -->
-<table class="section totals">
+<table class="totals section">
 <tr>
     <td width="70%"></td>
     <td>VAT (18%)</td>
@@ -192,14 +219,18 @@
 <tr>
     <td></td>
     <td>Total</td>
-    <td>{{ number_format($invoice->total_vat_inclusive > 0 
-        ? $invoice->total_vat_inclusive 
-        : $invoice->total_vat_exclusive,2) }}</td>
+    <td>
+        {{ number_format(
+            $invoice->total_vat_inclusive > 0 
+            ? $invoice->total_vat_inclusive 
+            : $invoice->total_vat_exclusive
+        ,2) }}
+    </td>
 </tr>
 
 <tr>
     <td></td>
-    <td>WHT (5%)</td>
+    <td>Withholding Tax (5%)</td>
     <td>{{ number_format($invoice->withholding_tax,2) }}</td>
 </tr>
 
