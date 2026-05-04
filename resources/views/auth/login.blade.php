@@ -339,6 +339,7 @@
                         <div class="login-modern-title">Sign in</div>
                         <div class="login-modern-subtitle">
                             Ingia kwenye akaunti yako kuendelea kutumia mfumo wa Naret Company.
+                            Enter in your account to continue using Naret Company system.
                         </div>
 
                         <form method="POST" action="{{ route('login') }}">
