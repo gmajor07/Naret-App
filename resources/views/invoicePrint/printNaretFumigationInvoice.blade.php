@@ -108,7 +108,7 @@
         <img src="{{ public_path(
             $invoice->vat > 0 
             ? 'assets/img/naret_company.jpg' 
-            : 'assets/img/naret.jpg'
+            : 'assets/img/naret_fummigation.jpg'
         ) }}" width="160">
     </td>
 </tr>
