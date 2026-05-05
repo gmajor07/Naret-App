@@ -65,7 +65,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @foreach($invoice->order->products as $product)
+                  @foreach($invoice->order->products->reverse() as $product)
                         <tr>
                           <td> {{$product->name }} </td>
                           <td> {{$product->description}} </td>

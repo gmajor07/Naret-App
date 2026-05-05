@@ -99,7 +99,7 @@
             </thead>
             <tbody>
 
-                @foreach ($pending_invoices as $key => $pending)
+                @foreach ($pending_invoices->reverse() as $key => $pending)
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td>{{ $pending->invoice_number }} </td>
@@ -214,7 +214,7 @@
         </thead>
         <tbody>
 
-            @foreach ($partial_paid_invoices as $key => $partial_paid)
+            @foreach ($partial_paid_invoices->reverse() as $key => $partial_paid)
                 <tr>
                     {{-- <td> {{ ++$key }} </td> --}}
                     <td> <a href="{{route('invoice.addPayment', $partial_paid->id)}}"> {{ $partial_paid->invoice_number }} </a></td>
@@ -298,7 +298,7 @@
             </thead>
             <tbody>
 
-                @foreach ($paid_invoices as $key => $paid)
+                @foreach ($paid_invoices->reverse() as $key => $paid)
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td> {{ $paid->invoice_number }} </td>
@@ -379,7 +379,7 @@
             </thead>
             <tbody>
 
-                @foreach ($cancelled_invoices as $key => $cancelled)
+                @foreach ($cancelled_invoices->reverse() as $key => $cancelled)
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td> {{ $cancelled->invoice_number }} </td>

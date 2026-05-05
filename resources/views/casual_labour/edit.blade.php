@@ -60,7 +60,7 @@
                                         value="{{ old('date', $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('Y-m-d') : '') }}">
                                 </div>
                             </div>
-                           @foreach ($order->casual_labour as $casual_labour )
+                           @foreach ($order->casual_labour->reverse() as $casual_labour )
                                 <div class="col-md-12" id="prodContainer">
                                     <div class="row defaultRow line-item-card" >
                                         <div class="col-md-3">

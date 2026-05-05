@@ -58,7 +58,7 @@
                 </thead>
                 <tbody>
 
-                    @foreach ($orders as $key => $order)
+                    @foreach ($orders->reverse() as $key => $order)
                         <tr>
                             <td> {{ ++$key }} </td>
                             <td><b> {{ $order->order_number }} </b></td>

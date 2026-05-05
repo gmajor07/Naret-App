@@ -68,7 +68,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @foreach($invoice->order->casual_labour as $key =>  $casual)
+                  @foreach($invoice->order->casual_labour->reverse() as $key =>  $casual)
                         <tr>
                             <td> {{ ++$key }} </td>
                           <td> {{$casual->description}} </td>

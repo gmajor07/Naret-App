@@ -284,7 +284,7 @@
     </thead>
     <tbody>
         @if($invoice->invoice_type == 1)
-            @foreach ($invoice->order->products as $key => $product)
+            @foreach ($invoice->order->products->reverse() as $key => $product)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $product->name }}</td>
@@ -295,7 +295,7 @@
                 </tr>
             @endforeach
         @elseif($invoice->invoice_type == 3)
-            @foreach ($invoice->order->casual_labour as $key => $casual)
+            @foreach ($invoice->order->casual_labour->reverse() as $key => $casual)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td class="description-text">{{ $casual->description }}</td>
@@ -306,7 +306,7 @@
                 </tr>
             @endforeach
         @else
-            @foreach ($invoice->order->fumigations as $key => $fumigation)
+            @foreach ($invoice->order->fumigations->reverse() as $key => $fumigation)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>Fumigation</td>

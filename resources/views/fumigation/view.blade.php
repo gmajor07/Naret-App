@@ -45,7 +45,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            @foreach($order->fumigations as $fumigation)
+                            @foreach($order->fumigations->reverse() as $fumigation)
                                   <tr>
                                     <td> {{$fumigation->fumigation_number }} </td>
                                     <td> {{$fumigation->description}} </td>

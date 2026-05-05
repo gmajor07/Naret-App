@@ -47,7 +47,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            @foreach($order->casual_labour as $casual_labour)
+                            @foreach($order->casual_labour->reverse() as $casual_labour)
                                   <tr>
                                     <td> {{$casual_labour->description }} </td>
                                     <td> {{number_format(($casual_labour->labour_charge),'2','.',',')}} </td>

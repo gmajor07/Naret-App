@@ -57,7 +57,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($invoices as $key => $invoice)
+                        @foreach ($invoices->reverse() as $key => $invoice)
                             <tr>
                                 <td> {{ ++$key }} </td>
                                 <td> {{ $invoice->invoice_number }} </td>
