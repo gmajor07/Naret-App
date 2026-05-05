@@ -5,96 +5,81 @@
 <title>Invoice</title>
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        color: #333;
-    }
+body {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #333;
+}
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    .header td {
-        vertical-align: top;
-    }
+.header td {
+    vertical-align: top;
+}
 
-    .title {
-        font-size: 22px;
-        font-weight: bold;
-    }
+.title {
+    font-size: 22px;
+    font-weight: bold;
+}
 
-    .logo {
-        text-align: right;
-    }
+.logo {
+    text-align: right;
+}
 
-    .section {
-        margin-top: 20px;
-    }
+.section {
+    margin-top: 20px;
+}
 
-    .info td {
-        vertical-align: top;
-        font-size: 12px;
-        line-height: 1.6;
-    }
+.info td {
+    vertical-align: top;
+    font-size: 12px;
+    line-height: 1.6;
+}
 
-    .divider {
-        border-right: 2px solid #000;
-        padding-right: 10px;
-    }
+.divider {
+    border-right: 2px solid #000;
+    padding-right: 10px;
+}
 
-    .items th {
-        background: #1b5e85;
-        color: #fff;
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
+.items th {
+    background: #1b5e85;
+    color: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
 
-    .items td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: center;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        word-break: break-word;
-    }
+.items td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
 
-    .items td.text-left {
-        text-align: left;
-        max-width: 200px;
-        white-space: normal;
-        vertical-align: middle;
-    }
+.text-left {
+    text-align: left;
+}
 
-    .text-left {
-        text-align: left;
-    }
+.footer {
+    margin-top: 30px;
+}
 
-    .totals td {
-        border: none;
-        padding: 6px;
-    }
+.amount-due {
+    color: #a00000;
+    font-weight: bold;
+}
 
-    .amount-due {
-        color: #a00000;
-        font-weight: bold;
-    }
-
-    .footer {
-        margin-top: 30px;
-    }
-
-    .watermark {
-        position: fixed;
-        top: 40%;
-        width: 100%;
-        text-align: center;
-        font-size: 60px;
-        color: rgba(0,0,0,0.05);
-        transform: rotate(-45deg);
-        z-index: -1;
-    }
+.watermark {
+    position: fixed;
+    top: 40%;
+    width: 100%;
+    text-align: center;
+    font-size: 60px;
+    color: rgba(0,0,0,0.05);
+    transform: rotate(-45deg);
+    z-index: -1;
+}
 </style>
 </head>
 
@@ -102,9 +87,7 @@
 
 <!-- WATERMARK -->
 <div class="watermark">
-    {{ $invoice->vat > 0 
-        ? 'NARET COMPANY LIMITED' 
-        : 'NARET FUMIGATION AND GENERAL CLEANNESS' }}
+    NARET FUMIGATION AND GENERAL CLEANNESS
 </div>
 
 <!-- HEADER -->
@@ -115,65 +98,53 @@
     </td>
 
     <td class="logo">
-        <img src="{{ public_path(
-            $invoice->vat > 0 
-            ? 'assets/img/naret_company.jpg' 
-            : 'assets/img/naret_fummigation.jpg'
-        ) }}" width="160">
+        <img src="{{ public_path('assets/img/naret_fummigation.jpg') }}" width="160">
     </td>
 </tr>
 </table>
 
-<!-- INFO SECTION -->
+<!-- INFO -->
 <table class="info section">
 <tr>
 
-    <!-- CUSTOMER -->
-    <td width="40%">
-        <b>{{ $invoice->customer->name }}</b><br>
-        Email: {{ $invoice->customer->email }}<br>
-        Phone: {{ $invoice->customer->phone }}<br>
-        Location: {{ $invoice->customer->location }}<br>
-        TIN: {{ $invoice->customer->tin_number }}<br>
-        VRN: {{ $invoice->customer->vrn }}
-    </td>
+<td width="40%">
+    <b>{{ $invoice->customer->name }}</b><br>
+    Email: {{ $invoice->customer->email }}<br>
+    Phone Number: {{ $invoice->customer->phone }}<br>
+    Location: {{ $invoice->customer->location }}<br>
+    Tin Number: {{ $invoice->customer->tin_number }}<br>
+    VRN: {{ $invoice->customer->vrn }}
+</td>
 
-    <!-- INVOICE DETAILS -->
-    <td width="20%" class="divider">
-        @if($invoice->order?->po_number)
-            <b>PO:</b> {{ $invoice->order->po_number }}<br>
-        @endif
-        <b>No:</b> {{ $invoice->invoice_number }}<br>
-        <b>Date:</b> {{ $invoice->created_at->format('d/m/Y') }}<br>
-        <b>Due:</b> {{ \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') }}
-    </td>
+<td width="20%" class="divider">
+    <b>Invoice Number:</b> {{ $invoice->invoice_number }}<br>
+    <b>Invoice Date:</b> {{ $invoice->created_at->format('d/m/Y') }}<br>
+    <b>Due Date:</b> {{ \Carbon\Carbon::parse($invoice->due_date)->format('d/m/Y') }}<br>
+    <b>Customer PO Number:</b> {{ $invoice->order->po_number ?? 'N/A' }}
+</td>
 
-    <!-- COMPANY -->
-    <td width="40%">
-        <b>{{ $invoice->vat > 0 
-            ? 'NARET COMPANY LIMITED' 
-            : 'NARET FUMIGATION AND GENERAL CLEANNESS' }}</b><br>
-
-        Opposite Gate 5, Shimo la Udongo Road<br>
-        P.O Box 6230, Dar es Salaam<br>
-        Phone: 0753995084 / 0754689775<br>
-        Email: naret@naret.co.tz<br>
-        TIN: 155884452<br>
-        VRN: +40039930
-    </td>
+<td width="40%">
+    <b>NARET FUMIGATION AND GENERAL CLEANNESS</b><br>
+    Opposite of Gate 5 stand, Shimo la Udongo Road, Kurasini,<br>
+    P.O.Box 6230, Dar es Salaam, Tanzania.<br>
+    Phone Number: 0753995084/0754689775<br>
+    Email: naret@naret.co.tz<br>
+    Tin Number: 155884452<br>
+    VRN: +40039930
+</td>
 
 </tr>
 </table>
 
-<!-- ITEMS TABLE -->
+<!-- TABLE -->
 <table class="items section">
 <thead>
 <tr>
     <th>S/N</th>
+    <th>Title</th>
     <th class="text-left">Description</th>
-    <th>Labour Charges</th>
-    <th>Administration Fee</th>
     <th>Quantity</th>
+    <th>Unit Price</th>
     <th>Amount</th>
 </tr>
 </thead>
@@ -182,97 +153,72 @@
 
 @php $i = 1; @endphp
 
-{{-- COMPANY DATA --}}
-@if(!empty($invoice->order->casual_labour) && count($invoice->order->casual_labour))
-    @foreach ($invoice->order->casual_labour as $item)
-        <tr>
-            <td>{{ $i++ }}</td>
-            <td class="text-left">{{ $item->description }}</td>
-            <td>{{ number_format($item->labour_charge,2) }}</td>
-            <td>{{ number_format($item->administration_fee,2) }}</td>
-            <td>{{ $item->quantity }}</td>
-            <td>{{ number_format(($item->labour_charge + $item->administration_fee) * $item->quantity,2) }}</td>
-        </tr>
-    @endforeach
-
-{{-- FUMIGATION DATA --}}
-@elseif(!empty($invoice->order->fumigations) && count($invoice->order->fumigations))
-    @foreach ($invoice->order->fumigations as $item)
-        <tr>
-            <td>{{ $i++ }}</td>
-            <td class="text-left">{{ $item->description }}</td>
-            <td>{{ number_format($item->unit_price,2) }}</td>
-            <td>0.00</td>
-            <td>{{ $item->item_quantity }}</td>
-            <td>{{ number_format($item->unit_price * $item->item_quantity,2) }}</td>
-        </tr>
-    @endforeach
-@endif
-
-</tbody>
-</table>
-
-<!-- TOTALS -->
-<table class="totals section">
+@foreach ($invoice->order->fumigations as $item)
 <tr>
-    <td width="70%"></td>
+    <td>{{ $i++ }}</td>
+    <td>Fumigation</td>
+    <td class="text-left">{{ $item->description }}</td>
+    <td>{{ $item->item_quantity }}</td>
+    <td>{{ number_format($item->unit_price,2) }}</td>
+    <td>{{ number_format($item->unit_price * $item->item_quantity,2) }}</td>
+</tr>
+@endforeach
+
+<!-- TOTALS INSIDE TABLE -->
+<tr>
+    <td colspan="4"></td>
+    <td>TOTAL INCLUSIVE OF VAT</td>
+    <td>{{ number_format($invoice->vat,2) }}</td>
+</tr>
+
+<tr>
+    <td colspan="4"></td>
+    <td>TOTAL EXCLUSIVE OF VAT</td>
+    <td>{{ number_format($invoice->total_vat_exclusive,2) }}</td>
+</tr>
+
+<tr>
+    <td colspan="4"></td>
     <td>VAT (18%)</td>
     <td>{{ number_format($invoice->vat,2) }}</td>
 </tr>
 
 <tr>
-    <td></td>
-    <td>Discount</td>
-    <td>{{ number_format($invoice->discount,2) }}</td>
-</tr>
-
-<tr>
-    <td></td>
-    <td>Total</td>
-    <td>
-        {{ number_format(
-            $invoice->total_vat_inclusive > 0 
-            ? $invoice->total_vat_inclusive 
-            : $invoice->total_vat_exclusive
-        ,2) }}
-    </td>
-</tr>
-
-<tr>
-    <td></td>
-    <td>Withholding Tax (5%)</td>
+    <td colspan="4"></td>
+    <td>WITHHOLDING TAX (5%)</td>
     <td>{{ number_format($invoice->withholding_tax,2) }}</td>
 </tr>
 
 <tr>
-    <td></td>
-    <td><b>Amount Due</b></td>
+    <td colspan="4"></td>
+    <td>DISCOUNT</td>
+    <td>{{ number_format($invoice->discount,2) }}</td>
+</tr>
+
+<tr>
+    <td colspan="4"></td>
+    <td><b>AMOUNT DUE</b></td>
     <td class="amount-due">
-        {{ $invoice->currency_id == 2 ? 'USD $' : 'TZs.' }}
-        {{ number_format($invoice->amount_due,2) }}
+        TZs. {{ number_format($invoice->amount_due,2) }}
     </td>
 </tr>
+
+</tbody>
 </table>
 
 <!-- FOOTER -->
 <div class="footer">
-    <h3>Payment Method</h3>
+    <h3>Payment Method:</h3>
 
-    @if($invoice->vat > 0)
-        NMB BANK – KURASINI<br>
-        ACC: 23610021600<br>
-        NAME: NARET COMPANY LIMITED
-    @else
-        NBC BANK – SAMORA<br>
-        ACC: 012103024077<br>
-        NAME: NARET FUMIGATION AND GENERAL CLEANNESS
-    @endif
+    NBC BANK: SAMORA BRANCH<br>
+    ACC: 012103024077<br>
+    Name: NARET FUMIGATION AND GENERAL CLEANNESS
 
     <hr>
 
-    <b>Remarks:</b><br>
-    We assure you of our best quality and affordable services. 
-    If not disputed within 7 days, it is approved.
+    <b>Remarks</b><br>
+    We assure you of our best quality and affordable, miscellaneous port and fumigation services all time. 
+    If this invoice is not disputed within 7 days, it is regarded as approved.
 </div>
 
 </body>
