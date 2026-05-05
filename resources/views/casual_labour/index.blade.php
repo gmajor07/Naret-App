@@ -50,7 +50,7 @@
 
 
 
-                @foreach ($orders->reverse() as $key => $order)
+                @foreach ($orders as $key => $order)
                     <tr>
                         <td> {{ ++$key }} </td>
                         <td><b> {{ $order->order_number }} </b></td>
@@ -429,6 +429,7 @@
             $("#example1").DataTable({
                 "responsive": true,
                 "autoWidth": false,
+                "order": [],
             });
             $('#example2').DataTable({
                 "paging": true,
@@ -438,6 +439,7 @@
                 "info": true,
                 "autoWidth": false,
                 "responsive": true,
+                "order": [],
             });
 
             //Initialize Select2 Elements

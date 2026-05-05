@@ -23,7 +23,7 @@ class CasualLabourController extends Controller
      */
     public function index()
     {
-        $orders = Order::where('type_id', 3)->get();
+        $orders = Order::with(['customer', 'invoice'])->where('type_id', 3)->latest('id')->get();
         $customers = Customer::all();
         $currencies  = Currency::all();
         //$casual_labour = CasualLabour::all();

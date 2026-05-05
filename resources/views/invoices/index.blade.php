@@ -3,31 +3,44 @@
 @section('content')
 
 <style>
-    /* Ensure dropdown menus appear above all other elements */
     .card-body, .card, .tab-content, .table-responsive, .table-responsive-table, .dataTables_wrapper, .dataTables_scroll, .dataTables_scrollBody, .content-wrapper, .content {
         overflow: visible !important;
     }
-    
+
     table, thead, tbody, tr, td, th {
         overflow: visible !important;
     }
-    
-    .btn-group {
+
+    .invoice-actions {
         position: relative;
-        z-index: 9999;
+        z-index: 20;
     }
-    
-    .dropdown-menu {
-        position: absolute;
+
+    .invoice-actions.show {
         z-index: 99999 !important;
-        overflow: visible;
-        display: none;
     }
-    
-    .btn-group.show .dropdown-menu,
-    .btn-group:hover .dropdown-menu,
-    .dropdown-menu.show {
-        display: block;
+
+    .invoice-actions .dropdown-menu {
+        background: #fff;
+        border: 1px solid #d7e6fb;
+        border-radius: 10px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, .18);
+        min-width: 170px;
+        padding: 8px;
+        z-index: 100000 !important;
+    }
+
+    .invoice-actions .dropdown-item {
+        border-radius: 8px;
+        color: #10213f;
+        font-weight: 700;
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+
+    .invoice-actions .dropdown-item:hover {
+        background: #eaf4ff;
+        color: #0b5ed7;
     }
 </style>
 
@@ -99,7 +112,7 @@
             </thead>
             <tbody>
 
-                @foreach ($pending_invoices->reverse() as $key => $pending)
+                @foreach ($pending_invoices as $key => $pending)
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td>{{ $pending->invoice_number }} </td>
@@ -137,12 +150,12 @@
                                 data-target="#modal-cancel{{ $pending->id }}"><i class="fas fas fa-ban">
                                 </i></button>
 
-                        <div class="btn-group">
+                        <div class="btn-group invoice-actions">
                             <button type="button" class="btn btn-default">Action</button>
-                            <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                            <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" data-boundary="window">
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <div class="dropdown-menu" role="menu">
+                            <div class="dropdown-menu dropdown-menu-right" role="menu">
                                 @if ($pending->invoice_type == 1)
                                     <a class="dropdown-item" href="{{ route('printNaretInvoice', [$pending->id, 'profoma']) }}">Profoma Invoice</a>
                                     <a class="dropdown-item" href="{{ route('printNaretInvoice', [$pending->id, 'invoice']) }}">Invoice</a>
@@ -214,7 +227,7 @@
         </thead>
         <tbody>
 
-            @foreach ($partial_paid_invoices->reverse() as $key => $partial_paid)
+            @foreach ($partial_paid_invoices as $key => $partial_paid)
                 <tr>
                     {{-- <td> {{ ++$key }} </td> --}}
                     <td> <a href="{{route('invoice.addPayment', $partial_paid->id)}}"> {{ $partial_paid->invoice_number }} </a></td>
@@ -248,12 +261,12 @@
                     @endif
                     <td> {{ $partial_paid->due_date}} </td>
                     <td style="text-align: center;">
-                        <div class="btn-group">
+                        <div class="btn-group invoice-actions">
                             <button type="button" class="btn btn-default">Action</button>
-                            <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                            <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" data-boundary="window">
                                 <span class="sr-only">Toggle Dropdown</span>
                             </button>
-                            <div class="dropdown-menu" role="menu">
+                            <div class="dropdown-menu dropdown-menu-right" role="menu">
                                 @if ($partial_paid->invoice_type == 1)
                                     <a class="dropdown-item" href="{{ route('printNaretInvoice', [$partial_paid->id, 'profoma']) }}">Profoma Invoice</a>
                                     <a class="dropdown-item" href="{{ route('printNaretInvoice', [$partial_paid->id, 'invoice']) }}">Invoice</a>
@@ -298,7 +311,7 @@
             </thead>
             <tbody>
 
-                @foreach ($paid_invoices->reverse() as $key => $paid)
+                @foreach ($paid_invoices as $key => $paid)
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td> {{ $paid->invoice_number }} </td>
@@ -331,12 +344,12 @@
                         @endif
                         <td> {{ $paid->due_date}} </td>
                         <td style="text-align: center;">
-                            <div class="btn-group">
+                            <div class="btn-group invoice-actions">
                                 <button type="button" class="btn btn-default">Action</button>
-                                <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" data-boundary="window">
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
-                                <div class="dropdown-menu" role="menu">
+                                <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     @if ($paid->invoice_type == 1)
                                         <a class="dropdown-item" href="{{ route('printNaretInvoice', [$paid->id, 'profoma']) }}">Profoma Invoice</a>
                                         <a class="dropdown-item" href="{{ route('printNaretInvoice', [$paid->id, 'invoice']) }}">Invoice</a>
@@ -379,7 +392,7 @@
             </thead>
             <tbody>
 
-                @foreach ($cancelled_invoices->reverse() as $key => $cancelled)
+                @foreach ($cancelled_invoices as $key => $cancelled)
                     <tr>
                         {{-- <td> {{ ++$key }} </td> --}}
                         <td> {{ $cancelled->invoice_number }} </td>
@@ -413,12 +426,12 @@
                         <td> {{ $cancelled->due_date}} </td>
                         {{-- <td> {{ $account->account_for}} </td> --}}
                         <td style="text-align: center;">
-                            <div class="btn-group">
+                            <div class="btn-group invoice-actions">
                                 <button type="button" class="btn btn-default">Action</button>
-                                <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown" data-boundary="window">
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
-                                <div class="dropdown-menu" role="menu">
+                                <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     @if ($cancelled->invoice_type == 1)
                                         <a class="dropdown-item" href="{{ route('printNaretInvoice', [$cancelled->id, 'profoma']) }}">Profoma Invoice</a>
                                         <a class="dropdown-item" href="{{ route('printNaretInvoice', [$cancelled->id, 'invoice']) }}">Invoice</a>
@@ -563,6 +576,7 @@
             $(".table-responsive-table").DataTable({
                 "responsive": true,
                 "autoWidth": false,
+                "order": [],
             });
            /* $("#example1").DataTable({
                 "responsive": true,

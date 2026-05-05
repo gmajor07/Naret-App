@@ -26,10 +26,10 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        $pending_invoices = Invoice::where('invoice_status', 0)->get();
-        $partial_paid_invoices = Invoice::where('invoice_status', 1)->get();
-        $paid_invoices = Invoice::where('invoice_status', 2)->get();
-        $cancelled_invoices = Invoice::where('invoice_status', 3)->get();
+        $pending_invoices = Invoice::with(['customer', 'order'])->where('invoice_status', 0)->latest('id')->get();
+        $partial_paid_invoices = Invoice::with(['customer', 'order'])->where('invoice_status', 1)->latest('id')->get();
+        $paid_invoices = Invoice::with(['customer', 'order'])->where('invoice_status', 2)->latest('id')->get();
+        $cancelled_invoices = Invoice::with(['customer', 'order'])->where('invoice_status', 3)->latest('id')->get();
         $customers = Customer::all();
 
          return view('invoices.index', compact('pending_invoices','paid_invoices',
