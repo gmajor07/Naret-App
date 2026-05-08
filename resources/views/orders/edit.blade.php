@@ -148,9 +148,15 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1">
+                        <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1" {{ $order->invoice->vat > 0 ? 'checked' : '' }}>
                         <label class="form-check-label" for="applyVAT">
                             Apply VAT
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1" {{ $order->invoice->is_non_vat ? 'checked' : '' }}>
+                        <label class="form-check-label" for="nonVAT">
+                            Non VAT
                         </label>
                     </div>
                 </div>
@@ -235,6 +241,18 @@ $(document).ready(function() {
 
     $('#applyDiscount').change(function() {
         $('#discountInput').toggle(this.checked);
+    });
+
+    $('#applyVAT').change(function() {
+        if (this.checked) {
+            $('#nonVAT').prop('checked', false);
+        }
+    });
+
+    $('#nonVAT').change(function() {
+        if (this.checked) {
+            $('#applyVAT').prop('checked', false);
+        }
     });
 });
 </script>

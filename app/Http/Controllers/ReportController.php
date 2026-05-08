@@ -49,9 +49,9 @@ class ReportController extends Controller
             elseif ($reportType === 'revenue') {
                 return Excel::download(new RevenueExport($fromDate, $toDate), "Revenue_Report_{$fromDate}_to_{$toDate}.xlsx");
             }elseif ($reportType === 'revenue_vat') {
-                return Excel::download(new RevenueWithVatExport($fromDate, $toDate), "Revenue_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new RevenueWithVatExport($fromDate, $toDate), "Revenue_With_VAT_Report_{$fromDate}_to_{$toDate}.xlsx");
             }elseif ($reportType === 'revenue_no_vat') {
-                return Excel::download(new RevenueWithoutVatExport($fromDate, $toDate), "Revenue_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new RevenueWithoutVatExport($fromDate, $toDate), "Revenue_Without_VAT_Report_{$fromDate}_to_{$toDate}.xlsx");
             }elseif ($reportType === 'revenue_non_vat') {
                 return Excel::download(new RevenueNonVatExport($fromDate, $toDate), "Revenue_Non_VAT_Report_{$fromDate}_to_{$toDate}.xlsx");
             }
@@ -71,7 +71,7 @@ class ReportController extends Controller
 
         if (auth()->check() && (int) auth()->user()->role_id === 1) {
             $types += [
-                'revenue_non_vat' => 'Revenue with Non VAT (NARET Company)',
+                'revenue_non_vat' => 'Revenue Non VAT (VAT-exempt products)',
                 'revenue_no_vat' => 'Revenue Without VAT',
                 'revenue_vat' => 'Revenue with VAT',
                 'revenue' => 'All Revenues',

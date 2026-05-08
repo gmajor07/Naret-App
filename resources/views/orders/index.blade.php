@@ -243,6 +243,12 @@
                                                 Apply VAT
                                             </label>
                                         </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1">
+                                            <label class="form-check-label" for="nonVAT">
+                                                Non VAT
+                                            </label>
+                                        </div>
                                           <br>
                                         <div class="form-group">
                                             <label>Date</label>
@@ -378,11 +384,20 @@
             });
 
             document.getElementById('applyDiscount').addEventListener('change', function() {
-            document.getElementById('discountInput').style.display = this.checked ? 'block' : 'none';
+                document.getElementById('discountInput').style.display = this.checked ? 'block' : 'none';
             });
 
-            document.getElementById('applyDiscount2').addEventListener('change', function() {
-            document.getElementById('discountInput2').style.display = this.checked ? 'block' : 'none';
+            const applyVAT = document.getElementById('applyVAT');
+            const nonVAT = document.getElementById('nonVAT');
+            applyVAT.addEventListener('change', function() {
+                if (this.checked) {
+                    nonVAT.checked = false;
+                }
+            });
+            nonVAT.addEventListener('change', function() {
+                if (this.checked) {
+                    applyVAT.checked = false;
+                }
             });
 
 </script>

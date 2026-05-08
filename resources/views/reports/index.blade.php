@@ -487,7 +487,7 @@
                             @foreach ($reportTypes as $value => $label)
                                 <div class="reports-export-item">
                                     <span class="reports-export-item__label">
-                                        {{ $value === 'expenses' ? 'Financial cost' : ($value === 'revenue_vat' ? 'Tax separated' : ($value === 'revenue_no_vat' ? 'Tax excluded' : 'Sales summary')) }}
+                                        {{ $value === 'expenses' ? 'Financial cost' : ($value === 'revenue_vat' ? 'VAT charged' : ($value === 'revenue_no_vat' ? 'VAT not charged' : ($value === 'revenue_non_vat' ? 'VAT exempt' : 'Sales summary'))) }}
                                     </span>
                                     <span class="reports-export-item__value">{{ $label }} report</span>
                                 </div>

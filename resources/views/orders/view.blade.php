@@ -66,7 +66,7 @@
                               <td></td>
                               <td></td>
                               <td></td>
-                              <td><b>VAT (18%)</b></td>
+                              <td><b>{{ $prod_order->invoice->is_non_vat ? 'NON VAT' : 'VAT (18%)' }}</b></td>
                               <td><b>{{ $prod_order->invoice->currency_id == 2 ? 'USD $' : 'TZs.' }} {{number_format(($prod_order->invoice->vat),2,'.',',')}} </b></td>
                             </tr>
                             <tr style="color: #dc3545;">

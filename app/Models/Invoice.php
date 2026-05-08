@@ -12,8 +12,12 @@ class Invoice extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = ['customer_id','order_id','invoice_number','due_date',
-     'payment_status','total_vat_inclusive','vat','discount','total_vat_exclusive','amount_paid'
+     'payment_status','total_vat_inclusive','vat','is_non_vat','discount','total_vat_exclusive','amount_paid'
     ,'amount_due','invoice_satus','due_date'];
+
+    protected $casts = [
+        'is_non_vat' => 'boolean',
+    ];
 
     protected static function boot()
     {

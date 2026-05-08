@@ -330,7 +330,7 @@
         </tr>
         <tr>
             <td colspan="4"></td>
-            <td class="totals-label">VAT (18%)</td>
+            <td class="totals-label">{{ $invoice->is_non_vat ? 'NON VAT' : 'VAT (18%)' }}</td>
             <td class="{{ (float) $invoice->vat == 0.0 ? 'zero-value' : 'total-value' }}">{{ number_format($invoice->vat, 2, '.', ',') }}</td>
         </tr>
         <tr>

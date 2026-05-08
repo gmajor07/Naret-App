@@ -36,7 +36,7 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
                                ->where('approved_by', 1)
                                ->with(['customer', 'order', 'invoice'])
                                ->whereHas('invoice', function ($query) {
-                                   $query->where('vat', 0);
+                                   $query->where('is_non_vat', true);
                                })
                                ->whereHas('order', function ($query) {
                                    $query->where('type_id', 1); // NARET COMPANY only, excluding fumigation

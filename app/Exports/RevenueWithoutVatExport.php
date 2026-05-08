@@ -36,7 +36,8 @@ class RevenueWithoutVatExport extends DefaultValueBinder implements FromCollecti
                                ->where('approved_by', 1)
                                ->with(['customer', 'order', 'invoice'])
                                ->whereHas('invoice', function ($query) {
-                                   $query->where('vat', 0);
+                                   $query->where('vat', 0)
+                                       ->where('is_non_vat', false);
                                })
                                ->lazy()
                                ->collect();
