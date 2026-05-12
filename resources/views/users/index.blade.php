@@ -242,21 +242,55 @@
                                             <div class="modal-body">
                                                 <div class="form-group">
                                                     <label>New Password</label>
-                                                    <input
-                                                        type="password"
-                                                        name="password"
-                                                        class="form-control @error('password') is-invalid @enderror"
-                                                        value=""
-                                                        placeholder="Enter Password"
-                                                        required
-                                                        minlength="8"
-                                                        pattern="^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$"
-                                                        title="Password must be at least 8 characters and include at least one number and one special character."
-                                                    >
+                                                    <div style="position: relative;">
+                                                        <input
+                                                            type="password"
+                                                            name="password"
+                                                            class="form-control password-input @error('password') is-invalid @enderror"
+                                                            id="password_{{$user->id}}"
+                                                            value=""
+                                                            placeholder="Enter Password"
+                                                            required
+                                                            minlength="8"
+                                                            pattern="^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$"
+                                                            title="Password must be at least 8 characters and include at least one number and one special character."
+                                                            style="padding-right: 40px;"
+                                                        >
+                                                        <button class="toggle-password" type="button" data-target="#password_{{$user->id}}" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #666;">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </div>
                                                     <small class="form-text text-muted">
                                                         Use at least 8 characters, including one number and one special character.
                                                     </small>
                                                     @error('password')
+                                                        <span class="invalid-feedback d-block" role="alert">
+                                                            <strong>{{ $message }}</strong>
+                                                        </span>
+                                                    @enderror
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Confirm Password</label>
+                                                    <div style="position: relative;">
+                                                        <input
+                                                            type="password"
+                                                            name="password_confirmation"
+                                                            class="form-control password-input @error('password_confirmation') is-invalid @enderror"
+                                                            id="password_confirmation_{{$user->id}}"
+                                                            value=""
+                                                            placeholder="Confirm Password"
+                                                            required
+                                                            minlength="8"
+                                                            pattern="^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$"
+                                                            title="Password must be at least 8 characters and include at least one number and one special character."
+                                                            style="padding-right: 40px;"
+                                                        >
+                                                        <button class="toggle-password" type="button" data-target="#password_confirmation_{{$user->id}}" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: none; cursor: pointer; color: #666;">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                    </div>
+                                                    @error('password_confirmation')
                                                         <span class="invalid-feedback d-block" role="alert">
                                                             <strong>{{ $message }}</strong>
                                                         </span>
@@ -447,6 +481,39 @@
                 // }
             });
 
+        });
+
+        // Password visibility toggle
+        $(document).on('click', '.toggle-password', function(e) {
+            e.preventDefault();
+            var target = $(this).data('target');
+            var $input = $(target);
+            var $icon = $(this).find('i');
+            
+            if ($input.attr('type') === 'password') {
+                $input.attr('type', 'text');
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                $input.attr('type', 'password');
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+        // Password confirmation validation
+        $(document).on('keyup', '.password-input', function() {
+            var $modal = $(this).closest('.modal');
+            var $passwordField = $modal.find('input[name="password"]');
+            var $confirmField = $modal.find('input[name="password_confirmation"]');
+            
+            if ($passwordField.val() !== $confirmField.val()) {
+                $confirmField.removeClass('is-valid').addClass('is-invalid');
+                if (!$confirmField.siblings('.password-mismatch-error').length) {
+                    $confirmField.after('<span class="password-mismatch-error text-danger" style="font-size: 0.875rem;">Passwords do not match</span>');
+                }
+            } else if ($confirmField.val() !== '') {
+                $confirmField.removeClass('is-invalid').addClass('is-valid');
+                $confirmField.siblings('.password-mismatch-error').remove();
+            }
         });
     </script>
 
