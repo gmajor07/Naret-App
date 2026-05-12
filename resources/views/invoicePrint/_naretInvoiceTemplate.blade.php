@@ -193,10 +193,11 @@
 </head>
 <body>
 @php
-    $isVatInvoice = $invoice->vat > 0;
-    $companyName = $isVatInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS';
-    $companyDisplayName = $isVatInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS.';
-    $logoPath = $isVatInvoice ? 'assets/img/naret_company.jpg' : 'assets/img/narets.jpg';
+    $isNaretCompanyOrder = (int) ($invoice->order?->type_id ?? 0) === 1;
+    $usesCompanyInvoice = $isNaretCompanyOrder && ((float) $invoice->vat > 0 || $invoice->is_non_vat);
+    $companyName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS';
+    $companyDisplayName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS.';
+    $logoPath = $usesCompanyInvoice ? 'assets/img/naret_company.jpg' : 'assets/img/narets.jpg';
     $currencyLabel = $invoice->currency_id == 2 ? 'USD $' : 'TZs.';
     $poNumber = $invoice->order?->po_number ?: 'N/A';
     $isProforma = $status !== 'invoice';
@@ -205,7 +206,7 @@
 @endphp
 
 <div class="watermark">
-    @if($isVatInvoice)
+    @if($usesCompanyInvoice)
         NARET COMPANY<br>LIMITED
     @else
         NARET FUMIGATION<br>AND GENERAL<br>CLEANNESS
@@ -368,7 +369,7 @@
 
 <div class="footer">
     <h2>Payment Method:</h2>
-    @if($isVatInvoice)
+    @if($usesCompanyInvoice)
         <p>NMB BANK: KURASINI BRANCH</p>
         @if($invoice->currency_id == 2)
             <p>NMB ACC USD: <strong>23610021602</strong></p>
