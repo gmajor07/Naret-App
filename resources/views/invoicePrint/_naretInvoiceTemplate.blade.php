@@ -194,7 +194,9 @@
 <body>
 @php
     $isNaretCompanyOrder = (int) ($invoice->order?->type_id ?? 0) === 1;
-    $usesCompanyInvoice = $isNaretCompanyOrder && ((float) $invoice->vat > 0 || $invoice->is_non_vat);
+    $isCompanyVatInvoice = $isNaretCompanyOrder && (float) $invoice->vat > 0;
+    $isCompanyNonVatInvoice = $isNaretCompanyOrder && (bool) $invoice->is_non_vat;
+    $usesCompanyInvoice = $isCompanyVatInvoice || $isCompanyNonVatInvoice;
     $companyName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS';
     $companyDisplayName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS.';
     $logoPath = $usesCompanyInvoice ? 'assets/img/naret_company.jpg' : 'assets/img/narets.jpg';
