@@ -60,9 +60,10 @@
                                         value="{{ old('date', $order->order_date ? \Carbon\Carbon::parse($order->order_date)->format('Y-m-d') : '') }}">
                                 </div>
                             </div>
+                            <div class="col-md-12" id="prodContainer">
                            @foreach ($order->casual_labour->reverse() as $casual_labour )
-                                <div class="col-md-12" id="prodContainer">
                                     <div class="row defaultRow line-item-card" >
+                                        <input type="hidden" name="casual_id[]" value="{{ $casual_labour->id }}">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>Description</label>
@@ -95,9 +96,16 @@
                                             <button type="button" class="btn btn-primary line-item-btn line-item-btn--add" onclick="addProduct()"> <i class="fas fa-plus"></i></button>
                                             </div>
                                         </div>
+                                        <div class="col-md-2 col-lg-1">
+                                            <div class="line-item-actions">
+                                                <button type="button" class="btn btn-danger line-item-btn line-item-btn--remove" onclick="removeProduct(this)">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                            @endforeach
+                            </div>
 
                             <div class="col-md-12">
                                 <div class="row">
@@ -154,15 +162,35 @@
 
     </div>
 
+    <div class="modal fade" id="confirmRowDeleteModal" tabindex="-1" role="dialog" aria-labelledby="confirmRowDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title" id="confirmRowDeleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0" id="confirmRowDeleteMessage">Are you sure you want to delete this row?</p>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelRowDeleteButton">No</button>
+                    <button type="button" class="btn btn-outline-danger" id="confirmRowDeleteButton">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 @endsection
 
 @section('pagescripts')
-<script src="{{ asset('assets/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
 <script src="{{ asset('assets/plugins/select2/js/select2.full.min.js') }}"></script>
 
 <script type="text/javascript">
+let pendingRowDeleteButton = null;
 
 $(function() {
 
@@ -174,14 +202,17 @@ $(function() {
 });
 
 
-function addProduct() {
-    event.preventDefault();
+function addProduct(event) {
+    if (event) {
+        event.preventDefault();
+    }
     const productsContainer = $('#prodContainer');
     const newProductDiv = $(document.createElement('div'));
 
     newProductDiv.html(`
         <!-- Your HTML code for a new product -->
         <div class="newly row line-item-card">
+            <input type="hidden" name="casual_id[]" value="">
             <div class="col-md-3">
                 <div class="form-group">
                     <label>Description</label>
@@ -208,7 +239,7 @@ function addProduct() {
             </div>
             <div class="col-md-2 col-lg-1">
                 <div class="line-item-actions">
-                <button class="btn btn-primary line-item-btn line-item-btn--add" onclick="addProduct()"> <i class="fas fa-plus"></i></button>
+                <button type="button" class="btn btn-primary line-item-btn line-item-btn--add" onclick="addProduct(event)"> <i class="fas fa-plus"></i></button>
                 </div>
             </div>
             <div class="col-md-2 col-lg-1">
@@ -230,9 +261,37 @@ function addProduct() {
     }, 2000);
 }
 function removeProduct(button) {
-     // Find the parent product div and remove it
-         $(button).closest('.newly').remove();
+    if ($('#prodContainer .line-item-card').length <= 1) {
+        pendingRowDeleteButton = null;
+        $('#confirmRowDeleteModalLabel').text('Cannot Delete Row');
+        $('#confirmRowDeleteMessage').text('At least one labour row is required.');
+        $('#cancelRowDeleteButton').text('OK');
+        $('#confirmRowDeleteButton').hide();
+        $('#confirmRowDeleteModal').modal('show');
+        return;
+    }
+
+    pendingRowDeleteButton = button;
+    $('#confirmRowDeleteModalLabel').text('Confirm Delete');
+    $('#confirmRowDeleteMessage').text('Are you sure you want to delete this row? It will be deleted when you update the order.');
+    $('#cancelRowDeleteButton').text('No');
+    $('#confirmRowDeleteButton').show();
+    $('#confirmRowDeleteModal').modal('show');
  }
+
+$('#confirmRowDeleteButton').on('click', function() {
+    if (pendingRowDeleteButton) {
+        $(pendingRowDeleteButton).closest('.line-item-card').remove();
+        pendingRowDeleteButton = null;
+    }
+
+    $('#confirmRowDeleteModal').modal('hide');
+});
+
+$('#confirmRowDeleteModal').on('hidden.bs.modal', function() {
+    pendingRowDeleteButton = null;
+});
+
  document.getElementById('applyDiscount').addEventListener('change', function() {
  document.getElementById('discountInput').style.display = this.checked ? 'block' : 'none';
 });

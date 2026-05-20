@@ -240,10 +240,15 @@ class CasualLabourController extends Controller
 
         $validatedData = $request->validate([
             'customer_id' => 'required|exists:customers,id',
+            'casual_id' => 'nullable|array',
             'casual_id.*' => 'nullable|exists:casual_labours,id',
+            'description' => 'required|array|min:1',
             'description.*' => 'required|string|max:255',
+            'labour_charges' => 'required|array|min:1',
             'labour_charges.*' => 'required|integer|min:1',
+            'administration_fee' => 'required|array|min:1',
             'administration_fee.*' => 'required|integer|min:0',
+            'quantity' => 'required|array|min:1',
             'quantity.*' => 'required|integer|min:1',
             'po_number' => 'nullable|string|max:255',
             'date' => 'required|date',
@@ -258,11 +263,11 @@ class CasualLabourController extends Controller
         DB::transaction(function () use ($validatedData, $request, $order) {
             $selectedDate = Carbon::parse($validatedData['date']);
 
-            // Detach and delete existing casual labours
-            $existingCasuals = $order->casual_labour;
-            //$existingExpenses = $order->casual_labour->expense;
-            $existingExpenses = Expense::whereIn('id', $order->casual_labour->pluck('expense_id'))->get();
-            $order->casual_labour()->detach();
+            $existingCasuals = $order->casual_labour->keyBy('id');
+            $submittedCasualIds = collect($validatedData['casual_id'] ?? [])
+                ->filter()
+                ->map(fn ($casualId) => (int) $casualId)
+                ->unique();
 
             $order->customer_id = $request['customer_id'];
             $order->order_date = $selectedDate;
@@ -271,20 +276,35 @@ class CasualLabourController extends Controller
             $order->save();
 
             $casual_labours = [];
+            $discountAmount = (float) ($request->discount_amount ?? 0);
+
+            $casualsToDelete = $existingCasuals->reject(function ($casual) use ($submittedCasualIds) {
+                return $submittedCasualIds->contains($casual->id);
+            });
+
+            foreach ($casualsToDelete as $oldCasual) {
+                $order->casual_labour()->detach($oldCasual->id);
+
+                if ($oldCasual->expense_id) {
+                    Expense::where('id', $oldCasual->expense_id)->delete();
+                }
+
+                $oldCasual->delete();
+            }
 
             foreach ($validatedData['description'] as $key => $desc) {
                 $casualId = $validatedData['casual_id'][$key] ?? null;
+                $casual = $casualId ? $existingCasuals->get((int) $casualId) : null;
 
                 $expenseAmount = $validatedData['labour_charges'][$key] * $validatedData['quantity'][$key];
-                $expense = new Expense();
+                $expense = $casual && $casual->expense_id ? Expense::find($casual->expense_id) : null;
+                $expense = $expense ?: new Expense();
                 $expense->description = $desc." order number ".$order->order_number;
                 $expense->amount = $expenseAmount;
                 $expense->date = $selectedDate->format('Y-m-d');
                 $expense->save();
 
-                if ($casualId && CasualLabour::find($casualId)) {
-                    $casual = CasualLabour::find($casualId);
-                } else {
+                if (!$casual) {
                     $casual = new CasualLabour();
                 }
 
@@ -295,15 +315,15 @@ class CasualLabourController extends Controller
                 $total = ($casual->labour_charge + $casual->administration_fee) * $casual->quantity;
 
                 if ($request->apply_discount) {
-                    if ($request->apply_vat2 == 1) {
-                        $casual->vat = ($total - $request->discount_amount2) * 0.18;
-                        $casual->payable_amount = ($total - $request->discount_amount2) + $casual->vat;
+                    if ($request->apply_vat == 1) {
+                        $casual->vat = ($total - $discountAmount) * 0.18;
+                        $casual->payable_amount = ($total - $discountAmount) + $casual->vat;
                     } else {
                         $casual->vat = 0;
-                        $casual->payable_amount = $total - $request->discount_amount2;
+                        $casual->payable_amount = $total - $discountAmount;
                     }
                 } else {
-                    if ($request->apply_vat2 == 1) {
+                    if ($request->apply_vat == 1) {
                         $casual->vat = $total * 0.18;
                         $casual->payable_amount = $total + $casual->vat;
                     } else {
@@ -317,16 +337,10 @@ class CasualLabourController extends Controller
                 $casual->date = $selectedDate->format('Y-m-d');
                 $casual->save();
 
-                $order->casual_labour()->attach($casual->id, ['created_at' => $selectedDate, 'updated_at' => now()]);
+                $order->casual_labour()->syncWithoutDetaching([
+                    $casual->id => ['created_at' => $selectedDate, 'updated_at' => now()],
+                ]);
                 $casual_labours[] = $casual;
-            }
-
-            foreach ($existingCasuals as $oldCasual) {
-                $oldCasual->delete(); // optional: only delete if you don’t want to retain history
-            }
-
-            foreach ($existingExpenses as $oldExpense) {
-                $oldExpense->delete(); // optional: only delete if you don’t want to retain history
             }
 
             // Update invoice
