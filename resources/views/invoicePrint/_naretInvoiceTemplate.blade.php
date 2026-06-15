@@ -193,7 +193,7 @@
 </head>
 <body>
 @php
-    $isNaretCompanyOrder = (int) ($invoice->order?->type_id ?? 0) === 1;
+    $isNaretCompanyOrder = in_array((int) ($invoice->order?->type_id ?? 0), [1, 2], true);
     $isCompanyVatInvoice = $isNaretCompanyOrder && (float) $invoice->vat > 0;
     $isCompanyNonVatInvoice = $isNaretCompanyOrder && (bool) $invoice->is_non_vat;
     $usesCompanyInvoice = $isCompanyVatInvoice || $isCompanyNonVatInvoice;

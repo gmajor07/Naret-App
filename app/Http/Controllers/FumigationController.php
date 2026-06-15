@@ -52,6 +52,7 @@ class FumigationController extends Controller
             'unit_price.*' => 'required|integer|min:0',
             'po_number' => 'nullable|string|max:255',
             'apply_vat' => 'nullable|boolean',
+            'non_vat' => 'nullable|boolean',
             'withholding' => 'nullable|boolean',
             'discount_amount' => 'nullable|numeric|min:0',
             'currency_id' => 'required|exists:currencies,id',
@@ -102,10 +103,13 @@ class FumigationController extends Controller
             $invoice = new Invoice();
             $invoice->customer_id = $order->customer_id;
             $invoice->order_id = $order->id;
+            $isNonVat = $request->boolean('non_vat');
+            $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
+            $invoice->is_non_vat = $isNonVat;
 
             if($request->input('discount_amount')){
                 $invoice->discount = $request['discount_amount'];
-                if( $request->input('apply_vat') ==1 ){
+                if($applyVat){
                     $invoice->total_amount = $totalAmount;
                     $invoice->total_vat_inclusive = ($totalAmount-$invoice->discount) + (($totalAmount-$invoice->discount) * 0.18);
                     $invoice->vat = ($totalAmount-$invoice->discount) * 0.18;
@@ -123,7 +127,7 @@ class FumigationController extends Controller
             }
             else{
                 $invoice->discount = 0;
-                if( $request->input('apply_vat') ==1 ){
+                if($applyVat){
                     $invoice->total_amount = $totalAmount;
                     $invoice->total_vat_inclusive = $totalAmount + ($totalAmount * 0.18);
                     $invoice->vat = $totalAmount * 0.18;
@@ -205,6 +209,7 @@ class FumigationController extends Controller
             'po_number' => 'nullable|string|max:255',
             'date' => 'required|date',
             'apply_vat' => 'nullable|boolean',
+            'non_vat' => 'nullable|boolean',
             'withholding' => 'nullable|boolean',
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
@@ -267,9 +272,13 @@ class FumigationController extends Controller
                 $totalAmount += $validatedData['unit_price'][$key] * $quantity;
             }
             $invoice = $order->invoice;
+            $isNonVat = $request->boolean('non_vat');
+            $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
+            $invoice->is_non_vat = $isNonVat;
+
             if ($request->input('discount_amount')) {
                 $invoice->discount = $request->input('discount_amount');
-                if ($request->input('apply_vat') == 1) {
+                if ($applyVat) {
                     $invoice->total_vat_inclusive = ($totalAmount - $invoice->discount) + (($totalAmount - $invoice->discount) * 0.18);
                     $invoice->vat = ($totalAmount - $invoice->discount) * 0.18;
                     $invoice->payable_amount = $invoice->total_vat_inclusive;
@@ -284,7 +293,7 @@ class FumigationController extends Controller
                 }
             } else {
                 $invoice->discount = 0;
-                if ($request->input('apply_vat') == 1) {
+                if ($applyVat) {
                     $invoice->total_vat_inclusive = $totalAmount + ($totalAmount * 0.18);
                     $invoice->vat = $totalAmount * 0.18;
                     $invoice->payable_amount = $invoice->total_vat_inclusive;

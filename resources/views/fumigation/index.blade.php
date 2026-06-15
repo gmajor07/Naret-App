@@ -320,7 +320,14 @@
                                                 Apply VAT
                                             </label>
                                         </div>
-                                        <br>
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1">
+                                                <label class="form-check-label" for="nonVAT">
+                                                    Non VAT
+                                                </label>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <label>Date</label>
                                             <input type="date" name="date" class="form-control" placeholder="dd-mm-yyyy" id="date" >
@@ -395,6 +402,18 @@
                 setTimeout(function() {
                     $("#success_element").hide();
                 }, 2000);
+
+                $('#applyVAT').change(function() {
+                    if ($(this).is(':checked')) {
+                        $('#nonVAT').prop('checked', false);
+                    }
+                });
+
+                $('#nonVAT').change(function() {
+                    if ($(this).is(':checked')) {
+                        $('#applyVAT').prop('checked', false);
+                    }
+                });
 
                   /*   var Toast = Swal.mixin({
                         toast: true,

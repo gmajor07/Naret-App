@@ -133,12 +133,26 @@
                             </div>
 
                             <div class="col-md-12">
-                                <div class="form-group">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1"  {{-- {{ $order->invoice->vat !== 0.00 ? 'checked' : '' }} --}}>
-                                        <label class="form-check-label" for="applyVAT">
-                                            Apply VAT
-                                        </label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1" {{ $order->invoice->vat > 0 ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="applyVAT">
+                                                    Apply VAT
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1" {{ $order->invoice->is_non_vat ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="nonVAT">
+                                                    Non VAT
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -229,6 +243,18 @@ function removeProduct(button) {
  }
  document.getElementById('applyDiscount').addEventListener('change', function() {
  document.getElementById('discountInput').style.display = this.checked ? 'block' : 'none';
+});
+
+$('#applyVAT').change(function() {
+    if ($(this).is(':checked')) {
+        $('#nonVAT').prop('checked', false);
+    }
+});
+
+$('#nonVAT').change(function() {
+    if ($(this).is(':checked')) {
+        $('#applyVAT').prop('checked', false);
+    }
 });
 
 </script>
