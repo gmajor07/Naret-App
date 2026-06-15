@@ -39,6 +39,9 @@ class RevenueWithoutVatExport extends DefaultValueBinder implements FromCollecti
                                    $query->where('vat', 0)
                                        ->where('is_non_vat', false);
                                })
+                               ->whereDoesntHave('order.products', function ($query) {
+                                   $query->whereRaw('UPPER(TRIM(name)) = ?', ['ALUMINIUM PHOSPHIDE 57%']);
+                               })
                                ->lazy()
                                ->collect();
         }

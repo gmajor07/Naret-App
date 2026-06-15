@@ -74,13 +74,13 @@
                                 <div class="form-group">
                                     <label>Product</label>
                                     <select class="select2 form-control" name="product_ids[]">
-                                        <option value="{{ $orderProduct->id }}" selected>
+                                        <option value="{{ $orderProduct->id }}" data-non-vat-exempt="{{ strtoupper(trim($orderProduct->name)) === 'ALUMINIUM PHOSPHIDE 57%' ? '1' : '0' }}" selected>
                                             {{ $orderProduct->name }}
                                         </option>
                                         @foreach ($products as $product)
                                             {{-- <option value="{{ $product->id }}">{{ $product->name }}</option> --}}
                                             @if ($product->id !== $orderProduct->id)
-                                              <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                              <option value="{{ $product->id }}" data-non-vat-exempt="{{ strtoupper(trim($product->name)) === 'ALUMINIUM PHOSPHIDE 57%' ? '1' : '0' }}">{{ $product->name }}</option>
                                             @endif
                                         @endforeach
                                     </select>
@@ -203,7 +203,7 @@ $(document).ready(function() {
                         <select class="select2 form-control" name="product_ids[]">
                             <option value="">Select product....</option>
                             @foreach ($products as $product)
-                                <option value="{{ $product->id }}">{{ $product->name }}</option>
+                                <option value="{{ $product->id }}" data-non-vat-exempt="{{ strtoupper(trim($product->name)) === 'ALUMINIUM PHOSPHIDE 57%' ? '1' : '0' }}">{{ $product->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -254,6 +254,20 @@ $(document).ready(function() {
             $('#applyVAT').prop('checked', false);
         }
     });
+
+    function syncNonVatExemptProduct() {
+        const hasNonVatExemptProduct = $('select[name="product_ids[]"] option:selected').filter(function() {
+            return $(this).data('non-vat-exempt') == 1;
+        }).length > 0;
+
+        if (hasNonVatExemptProduct) {
+            $('#nonVAT').prop('checked', true);
+            $('#applyVAT').prop('checked', false);
+        }
+    }
+
+    $(document).on('change', 'select[name="product_ids[]"]', syncNonVatExemptProduct);
+    syncNonVatExemptProduct();
 });
 </script>
 @endsection

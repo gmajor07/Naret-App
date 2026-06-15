@@ -183,7 +183,7 @@
                                     <select class="select2" name="product_ids[]"  style="width: 100%;">
                                         <option selected>Select Product...</option>
                                         @foreach($products as $product)
-                                           <option value="{{ $product->id }}">{{ $product->name}}</option>
+                                           <option value="{{ $product->id }}" data-non-vat-exempt="{{ strtoupper(trim($product->name)) === 'ALUMINIUM PHOSPHIDE 57%' ? '1' : '0' }}">{{ $product->name}}</option>
                                         @endforeach
                                    </select>
                                 </div>
@@ -343,7 +343,7 @@
                                 <select class="select2" name="product_ids[]" style="width: 100%;">
                                     <option selected>Select Product...</option>
                                     @foreach($products as $product)
-                                        <option value="{{ $product->id }}">{{ $product->name}}</option>
+                                        <option value="{{ $product->id }}" data-non-vat-exempt="{{ strtoupper(trim($product->name)) === 'ALUMINIUM PHOSPHIDE 57%' ? '1' : '0' }}">{{ $product->name}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -399,6 +399,20 @@
                     applyVAT.checked = false;
                 }
             });
+
+            function syncNonVatExemptProduct() {
+                const hasNonVatExemptProduct = $('select[name="product_ids[]"] option:selected').filter(function() {
+                    return $(this).data('non-vat-exempt') == 1;
+                }).length > 0;
+
+                if (hasNonVatExemptProduct) {
+                    nonVAT.checked = true;
+                    applyVAT.checked = false;
+                }
+            }
+
+            $(document).on('change', 'select[name="product_ids[]"]', syncNonVatExemptProduct);
+            syncNonVatExemptProduct();
 
 </script>
 @endsection

@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    private const NON_VAT_EXEMPT_PRODUCT_NAME = 'ALUMINIUM PHOSPHIDE 57%';
+
     /**
      * Display a listing of the resource.
      */
@@ -109,7 +111,7 @@ class OrderController extends Controller
             $invoice->customer_id = $order->customer_id;
             //$invoice->invoice_number = 9;
             $invoice->order_id = $order->id;
-            $isNonVat = $request->boolean('non_vat');
+            $isNonVat = $request->boolean('non_vat') || $this->hasNonVatExemptProduct($validatedData['product_ids']);
             $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
             $invoice->is_non_vat = $isNonVat;
 
@@ -251,7 +253,7 @@ class OrderController extends Controller
                 $invoice->customer_id = $order->customer_id;
                 //$invoice->invoice_number = 9;
                 $invoice->order_id = $order->id;
-                $isNonVat = $request->boolean('non_vat');
+                $isNonVat = $request->boolean('non_vat') || $this->hasNonVatExemptProduct($validatedData['product_ids']);
                 $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
                 $invoice->is_non_vat = $isNonVat;
 
@@ -359,5 +361,19 @@ class OrderController extends Controller
 
         return $pdf->download($order->customer->name.'_Invoice'.'pdf');
 
+    }
+
+    private function hasNonVatExemptProduct(array $productIds): bool
+    {
+        return Product::whereIn('id', $productIds)
+            ->get(['name'])
+            ->contains(function (Product $product) {
+                return $this->normalizeProductName($product->name) === self::NON_VAT_EXEMPT_PRODUCT_NAME;
+            });
+    }
+
+    private function normalizeProductName(?string $name): string
+    {
+        return strtoupper(trim(preg_replace('/\s+/', ' ', (string) $name)));
     }
 }

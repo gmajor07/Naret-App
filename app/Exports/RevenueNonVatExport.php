@@ -35,11 +35,15 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
             $this->sales = Sale::whereBetween('created_at', [$this->startDate, $this->endDate])
                                ->where('approved_by', 1)
                                ->with(['customer', 'order', 'invoice'])
-                               ->whereHas('invoice', function ($query) {
-                                   $query->where('is_non_vat', true);
+                               ->where(function ($query) {
+                                   $query->whereHas('invoice', function ($invoiceQuery) {
+                                       $invoiceQuery->where('is_non_vat', true);
+                                   })->orWhereHas('order.products', function ($productQuery) {
+                                       $productQuery->whereRaw('UPPER(TRIM(name)) = ?', ['ALUMINIUM PHOSPHIDE 57%']);
+                                   });
                                })
                                ->whereHas('order', function ($query) {
-                                   $query->where('type_id', 1); // NARET COMPANY only, excluding fumigation
+                                   $query->where('type_id', 1); // NARET COMPANY only
                                })
                                ->lazy()
                                ->collect();
