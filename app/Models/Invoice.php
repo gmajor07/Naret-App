@@ -24,6 +24,19 @@ class Invoice extends Model
         parent::boot();
 
         static::creating(function ($invoice) {
+            if (! empty($invoice->invoice_number)) {
+                return;
+            }
+
+            $order = $invoice->relationLoaded('order')
+                ? $invoice->order
+                : ($invoice->order_id ? Order::find($invoice->order_id) : null);
+
+            if ($order && preg_match('/^(\d{4})-ORD-(\d{4})$/', $order->order_number, $matches)) {
+                $invoice->invoice_number = $matches[1] . '-' . $matches[2];
+                return;
+            }
+
             $year = now()->format('Y');
             $lastInvoice = self::latest('id')->first();
 
