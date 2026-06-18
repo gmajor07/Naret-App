@@ -194,7 +194,7 @@
 <body>
 @php
     $orderTypeId = (int) ($invoice->order?->type_id ?? 0);
-    $isNaretCompanyVatOrder = in_array($orderTypeId, [1, 2], true);
+    $isNaretCompanyVatOrder = in_array($orderTypeId, [1, 2, 3], true);
     $isNaretCompanyNonVatOrder = in_array($orderTypeId, [1, 2, 3], true);
     $isCompanyVatInvoice = $isNaretCompanyVatOrder && (float) $invoice->vat > 0;
     $isCompanyNonVatInvoice = $isNaretCompanyNonVatOrder && (bool) $invoice->is_non_vat;
