@@ -143,9 +143,16 @@
                                 <div class="form-group">
                                     <div class="form-check">
                                         <input type="hidden" name="apply_vat" value="0">
-                                        <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1"  {{-- {{ $order->invoice->vat !== 0.00 ? 'checked' : '' }} --}}>
+                                        <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1" {{ $order->invoice->vat > 0 ? 'checked' : '' }}>
                                         <label class="form-check-label" for="applyVAT">
                                             Apply VAT
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="hidden" name="non_vat" value="0">
+                                        <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1" {{ $order->invoice->is_non_vat ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="nonVAT">
+                                            Non VAT
                                         </label>
                                     </div>
                                 </div>
@@ -294,6 +301,18 @@ $('#confirmRowDeleteModal').on('hidden.bs.modal', function() {
 
  document.getElementById('applyDiscount').addEventListener('change', function() {
  document.getElementById('discountInput').style.display = this.checked ? 'block' : 'none';
+});
+
+document.getElementById('applyVAT').addEventListener('change', function() {
+    if (this.checked) {
+        document.getElementById('nonVAT').checked = false;
+    }
+});
+
+document.getElementById('nonVAT').addEventListener('change', function() {
+    if (this.checked) {
+        document.getElementById('applyVAT').checked = false;
+    }
 });
 
 </script>

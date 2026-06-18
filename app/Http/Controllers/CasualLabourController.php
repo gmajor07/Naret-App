@@ -51,6 +51,7 @@ class CasualLabourController extends Controller
             'quantity.*' => 'required|integer|min:1',
             'po_number' => 'nullable|string|max:255',
             'apply_vat2' => 'nullable|boolean',
+            'non_vat' => 'nullable|boolean',
             'withholding2' => 'nullable|boolean',
             'discount_amount2' => 'nullable|numeric|min:0',
             'currency_id' => 'required|exists:currencies,id',
@@ -63,6 +64,8 @@ class CasualLabourController extends Controller
         DB::transaction(function() use($validatedData, $request,$date){
 
             $casual_labour = [];
+            $isNonVat = $request->boolean('non_vat');
+            $applyVat = $request->boolean('apply_vat2') && ! $isNonVat;
             //$total_adminitration_fee=0;
 
             foreach($validatedData['description'] as $key => $description){
@@ -84,7 +87,7 @@ class CasualLabourController extends Controller
 
 
                 if($request->discount_amount2){
-                    if($request->apply_vat2 == 1){
+                    if($applyVat){
                         $casual->vat = ($total - $request->discount_amount2) * 0.18;
                         $casual->payable_amount = ($total - $request->discount_amount2) + $casual->vat;
                     }
@@ -95,7 +98,7 @@ class CasualLabourController extends Controller
 
                  }
                  else{
-                      if($request->apply_vat2 == 1){
+                      if($applyVat){
                         $casual->vat = $total * 0.18;
                         $casual->payable_amount = $total + $casual->vat ;
                       }
@@ -143,10 +146,11 @@ class CasualLabourController extends Controller
             $invoice = new Invoice();
             $invoice->customer_id = $order->customer_id;
             $invoice->order_id = $order->id;
+            $invoice->is_non_vat = $isNonVat;
 
             if($request->input('discount_amount2')){
                 $invoice->discount = $request['discount_amount2'];
-                if( $request->input('apply_vat2') ==1 ){
+                if($applyVat){
                     $invoice->total_amount = $totalAmount;
                     $invoice->total_vat_inclusive = ($totalAmount-$invoice->discount) + (($totalAmount-$invoice->discount) * 0.18);
                     $invoice->vat = ($totalAmount-$invoice->discount) * 0.18;
@@ -164,7 +168,7 @@ class CasualLabourController extends Controller
             }
             else{
                 $invoice->discount = 0;
-                if( $request->input('apply_vat2') ==1 ){
+                if($applyVat){
                     $invoice->total_amount = $totalAmount;
                     $invoice->total_vat_inclusive = $totalAmount + ($totalAmount * 0.18);
                     $invoice->vat = $totalAmount * 0.18;
@@ -253,6 +257,7 @@ class CasualLabourController extends Controller
             'po_number' => 'nullable|string|max:255',
             'date' => 'required|date',
             'apply_vat' => 'nullable|boolean',
+            'non_vat' => 'nullable|boolean',
             'withholding' => 'nullable|boolean',
             'apply_discount'=> 'nullable|boolean',
             'discount_amount' => 'nullable|numeric|min:0',
@@ -277,6 +282,8 @@ class CasualLabourController extends Controller
 
             $casual_labours = [];
             $discountAmount = (float) ($request->discount_amount ?? 0);
+            $isNonVat = $request->boolean('non_vat');
+            $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
 
             $casualsToDelete = $existingCasuals->reject(function ($casual) use ($submittedCasualIds) {
                 return $submittedCasualIds->contains($casual->id);
@@ -315,7 +322,7 @@ class CasualLabourController extends Controller
                 $total = ($casual->labour_charge + $casual->administration_fee) * $casual->quantity;
 
                 if ($request->apply_discount) {
-                    if ($request->apply_vat == 1) {
+                    if ($applyVat) {
                         $casual->vat = ($total - $discountAmount) * 0.18;
                         $casual->payable_amount = ($total - $discountAmount) + $casual->vat;
                     } else {
@@ -323,7 +330,7 @@ class CasualLabourController extends Controller
                         $casual->payable_amount = $total - $discountAmount;
                     }
                 } else {
-                    if ($request->apply_vat == 1) {
+                    if ($applyVat) {
                         $casual->vat = $total * 0.18;
                         $casual->payable_amount = $total + $casual->vat;
                     } else {
@@ -350,11 +357,12 @@ class CasualLabourController extends Controller
             }
 
             $invoice = $order->invoice;
+            $invoice->is_non_vat = $isNonVat;
             //$invoice->discount = $request->discount_amount2 ?? 0;
 
             if ($request->input('discount_amount')) {
                 $invoice->discount = $request->input('discount_amount');
-                if ($request->input('apply_vat') == 1) {
+                if ($applyVat) {
                     $invoice->total_vat_inclusive = ($totalAmount - $invoice->discount) + (($totalAmount - $invoice->discount) * 0.18);
                     $invoice->vat = ($totalAmount - $invoice->discount) * 0.18;
                     $invoice->payable_amount = $invoice->total_vat_inclusive;
@@ -369,7 +377,7 @@ class CasualLabourController extends Controller
                 }
             } else {
                 $invoice->discount = 0;
-                if ($request->input('apply_vat') == 1) {
+                if ($applyVat) {
                     $invoice->total_vat_inclusive = $totalAmount + ($totalAmount * 0.18);
                     $invoice->vat = $totalAmount * 0.18;
                     $invoice->payable_amount = $invoice->total_vat_inclusive;

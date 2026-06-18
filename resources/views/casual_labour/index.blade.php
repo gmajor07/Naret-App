@@ -377,6 +377,12 @@
                                                 Apply VAT
                                             </label>
                                         </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1">
+                                            <label class="form-check-label" for="nonVAT">
+                                                Non VAT
+                                            </label>
+                                        </div>
                                         <br>
                                         <div class="form-group">
                                             <label>Date</label>
@@ -458,13 +464,29 @@
         });
 
 
-        document.getElementById('applyDiscount2').addEventListener('change', function() {
-        document.getElementById('discountInput2').style.display = this.checked ? 'block' : 'none';
-        });
+        const applyDiscount2 = document.getElementById('applyDiscount2');
+        const discountInput2 = document.getElementById('discountInput2');
+        if (applyDiscount2 && discountInput2) {
+            applyDiscount2.addEventListener('change', function() {
+                discountInput2.style.display = this.checked ? 'block' : 'none';
+            });
+        }
 
-        document.getElementById('applyDiscount').addEventListener('change', function() {
-        document.getElementById('discountInput').style.display = this.checked ? 'block' : 'none';
-        });
+        const applyVAT2 = document.getElementById('applyVAT2');
+        const nonVAT = document.getElementById('nonVAT');
+        if (applyVAT2 && nonVAT) {
+            applyVAT2.addEventListener('change', function() {
+                if (this.checked) {
+                    nonVAT.checked = false;
+                }
+            });
+
+            nonVAT.addEventListener('change', function() {
+                if (this.checked) {
+                    applyVAT2.checked = false;
+                }
+            });
+        }
 
 
         function addProduct() {
