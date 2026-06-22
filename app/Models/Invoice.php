@@ -28,12 +28,10 @@ class Invoice extends Model
                 return;
             }
 
-            $order = $invoice->relationLoaded('order')
-                ? $invoice->order
-                : ($invoice->order_id ? Order::find($invoice->order_id) : null);
+            $expectedNumber = $invoice->expectedInvoiceNumberFromOrder();
 
-            if ($order && preg_match('/^(\d{4})-ORD-(\d{4})$/', $order->order_number, $matches)) {
-                $invoice->invoice_number = $matches[1] . '-' . $matches[2];
+            if ($expectedNumber) {
+                $invoice->invoice_number = $expectedNumber;
                 return;
             }
 
@@ -48,6 +46,27 @@ class Invoice extends Model
                 $invoice->invoice_number = $year . '-0001';
             }
         });
+
+        static::saving(function ($invoice) {
+            $expectedNumber = $invoice->expectedInvoiceNumberFromOrder();
+
+            if ($expectedNumber) {
+                $invoice->invoice_number = $expectedNumber;
+            }
+        });
+    }
+
+    public function expectedInvoiceNumberFromOrder(): ?string
+    {
+        $order = $this->relationLoaded('order')
+            ? $this->order
+            : ($this->order_id ? Order::find($this->order_id) : null);
+
+        if ($order && preg_match('/^(\d{4})-ORD-(\d{4})$/', $order->order_number, $matches)) {
+            return $matches[1] . '-' . $matches[2];
+        }
+
+        return null;
     }
 
 

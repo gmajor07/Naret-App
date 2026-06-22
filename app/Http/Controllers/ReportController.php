@@ -8,6 +8,7 @@ use App\Exports\ExpensesExport;
 use App\Exports\RevenueWithVatExport;
 use App\Exports\RevenueWithoutVatExport;
 use App\Exports\RevenueNonVatExport;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
@@ -35,8 +36,10 @@ class ReportController extends Controller
         ]);
 
         $reportType = $request->report_type;
-        $fromDate = $request->from_date;
-        $toDate = $request->to_date;
+        $fromDate = Carbon::parse($request->from_date)->startOfDay();
+        $toDate = Carbon::parse($request->to_date)->endOfDay();
+        $fileFromDate = $fromDate->toDateString();
+        $fileToDate = $toDate->toDateString();
 
         if (! array_key_exists($reportType, $this->availableReportTypes())) {
             return back()->with('error', 'You are not allowed to generate this report type.');
@@ -44,16 +47,16 @@ class ReportController extends Controller
 
         try {
             if ($reportType === 'expenses') {
-                return Excel::download(new ExpensesExport($fromDate, $toDate), "Expenses_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new ExpensesExport($fromDate, $toDate), "Expenses_Report_{$fileFromDate}_to_{$fileToDate}.xlsx");
             } 
             elseif ($reportType === 'revenue') {
-                return Excel::download(new RevenueExport($fromDate, $toDate), "Revenue_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new RevenueExport($fromDate, $toDate), "Revenue_Report_{$fileFromDate}_to_{$fileToDate}.xlsx");
             }elseif ($reportType === 'revenue_vat') {
-                return Excel::download(new RevenueWithVatExport($fromDate, $toDate), "Revenue_With_VAT_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new RevenueWithVatExport($fromDate, $toDate), "Revenue_With_VAT_Report_{$fileFromDate}_to_{$fileToDate}.xlsx");
             }elseif ($reportType === 'revenue_no_vat') {
-                return Excel::download(new RevenueWithoutVatExport($fromDate, $toDate), "Revenue_Without_VAT_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new RevenueWithoutVatExport($fromDate, $toDate), "Revenue_Without_VAT_Report_{$fileFromDate}_to_{$fileToDate}.xlsx");
             }elseif ($reportType === 'revenue_non_vat') {
-                return Excel::download(new RevenueNonVatExport($fromDate, $toDate), "Revenue_Non_VAT_Report_{$fromDate}_to_{$toDate}.xlsx");
+                return Excel::download(new RevenueNonVatExport($fromDate, $toDate), "Revenue_Non_VAT_Report_{$fileFromDate}_to_{$fileToDate}.xlsx");
             }
         } catch (\Exception $e) {
             \Log::error('Report generation failed: ' . $e->getMessage());

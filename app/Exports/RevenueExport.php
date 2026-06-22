@@ -32,8 +32,8 @@ class RevenueExport extends DefaultValueBinder implements FromCollection, WithHe
     public function collection()
     {
         if (!$this->cachedCollection) {
-            $this->cachedCollection = Sale::whereBetween('created_at', [$this->startDate, $this->endDate])
-                ->where('approved_by', 1)
+            $this->cachedCollection = Sale::whereBetween('updated_at', [$this->startDate, $this->endDate])
+                ->where('approved_by', '>', 0)
                 ->with(['customer', 'order', 'invoice'])
                 ->lazy()
                 ->collect();
