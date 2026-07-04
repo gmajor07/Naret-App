@@ -147,7 +147,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <div class="form-check">
+                    <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" name="apply_vat" id="applyVAT" value="1" {{ $order->invoice->vat > 0 ? 'checked' : '' }}>
                         <label class="form-check-label" for="applyVAT">
                             Apply VAT
