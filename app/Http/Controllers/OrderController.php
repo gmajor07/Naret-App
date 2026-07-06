@@ -111,7 +111,7 @@ class OrderController extends Controller
             $invoice->customer_id = $order->customer_id;
             //$invoice->invoice_number = 9;
             $invoice->order_id = $order->id;
-            $isNonVat = $request->boolean('non_vat') || $this->hasNonVatExemptProduct($validatedData['product_ids']);
+            $isNonVat = $request->boolean('non_vat');
             $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
             $invoice->is_non_vat = $isNonVat;
 
@@ -253,7 +253,7 @@ class OrderController extends Controller
                 $invoice->customer_id = $order->customer_id;
                 //$invoice->invoice_number = 9;
                 $invoice->order_id = $order->id;
-                $isNonVat = $request->boolean('non_vat') || $this->hasNonVatExemptProduct($validatedData['product_ids']);
+                $isNonVat = $request->boolean('non_vat');
                 $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
                 $invoice->is_non_vat = $isNonVat;
 

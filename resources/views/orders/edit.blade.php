@@ -154,6 +154,7 @@
                         </label>
                     </div>
                     <div class="form-check">
+                        <input type="hidden" name="non_vat" value="0">
                         <input class="form-check-input" type="checkbox" name="non_vat" id="nonVAT" value="1" {{ $order->invoice->is_non_vat ? 'checked' : '' }}>
                         <label class="form-check-label" for="nonVAT">
                             Non VAT
@@ -255,19 +256,6 @@ $(document).ready(function() {
         }
     });
 
-    function syncNonVatExemptProduct() {
-        const hasNonVatExemptProduct = $('select[name="product_ids[]"] option:selected').filter(function() {
-            return $(this).data('non-vat-exempt') == 1;
-        }).length > 0;
-
-        if (hasNonVatExemptProduct) {
-            $('#nonVAT').prop('checked', true);
-            $('#applyVAT').prop('checked', false);
-        }
-    }
-
-    $(document).on('change', 'select[name="product_ids[]"]', syncNonVatExemptProduct);
-    syncNonVatExemptProduct();
 });
 </script>
 @endsection
