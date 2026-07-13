@@ -57,9 +57,12 @@
                           </thead>
                           <tbody>
                             @foreach($consumptions as $key => $consumption)
+                                @php
+                                    $assignedUser = $consumption->user->first();
+                                @endphp
                                   <tr>
-                                    <td>{{ ++$key}}</td>
-                                    <td><a href="#">  {{$consumption->product->name}} </a></td>
+                                    <td>{{ $consumptions->firstItem() + $key }}</td>
+                                    <td><a href="#">  {{ $consumption->product->name ?? 'Unknown fumigant' }} </a></td>
                                     <td> {{$consumption->item_quantity}} </td>
                                     <td>
                                       @if ($consumption->status == 0)
@@ -94,7 +97,7 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <p>Are you sure you want to mark <b>{{$consumption->item_quantity}} bottles</b> of  <b>{{$consumption->product->name}}</b> fumigant given to <b> {{$consumption->user()->first()->first_name}} {{$consumption->user()->first()->last_name}} as </b> Finished? </p>
+                                        <p>Are you sure you want to mark <b>{{$consumption->item_quantity}} bottles</b> of  <b>{{ $consumption->product->name ?? 'Unknown fumigant' }}</b> fumigant given to <b> {{ $assignedUser ? $assignedUser->first_name . ' ' . $assignedUser->last_name : 'Unassigned fumigator' }} as </b> Finished? </p>
                                         You won't be able to revert this...!
                                     </div>
                                     <div class="modal-footer justify-content-between">
@@ -131,7 +134,7 @@
                                                         <select class="select2" name="user_id"  style="width: 100%;">
                                                             <option value="" disabled selected>Fumigators...</option>
                                                             @foreach($users as $user)
-                                                            <option value="{{ $user->id }}" {{ $user->id == $consumption->user()->first()->id ? 'selected' : '' }}> {{ $user->first_name}} {{ $user->last_name}}</option>
+                                                            <option value="{{ $user->id }}" {{ $assignedUser && $user->id == $assignedUser->id ? 'selected' : '' }}> {{ $user->first_name}} {{ $user->last_name}}</option>
                                                          @endforeach
                                                        </select>
                                                     </div>
@@ -171,6 +174,9 @@
 
                           </tbody>
                         </table>
+                        <div class="mt-3">
+                            {{ $consumptions->links() }}
+                        </div>
                       </div>
                     </div>
 
@@ -273,6 +279,7 @@
 <script type="text/javascript">
         $(function() {
             $("#example1").DataTable({
+                "paging": false,
                 "responsive": true,
                 "autoWidth": false,
             });

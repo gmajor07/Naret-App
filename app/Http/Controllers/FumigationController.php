@@ -329,7 +329,10 @@ class FumigationController extends Controller
     public function assignView(){
 
         //$consumptions =Consumption::all();
-        $consumptions = Consumption::orderBy('status', 'asc')->get();
+        $consumptions = Consumption::with(['product', 'user'])
+            ->orderBy('status', 'asc')
+            ->paginate(25)
+            ->withQueryString();
         $users = User::where('role_id','=',3)->get();
         $fumigations = Fumigation::all();
         $products = Product::where('type_id','=',2)->get();
@@ -345,7 +348,7 @@ class FumigationController extends Controller
             'item_quantity' => 'required|integer|min:1',
             'container_quantity' => 'required|integer|min:1',
             'fumigation_id' => 'required|exists:fumigations,id',
-            'product_id'  => 'required|exists:users,id',
+            'product_id'  => 'required|exists:products,id',
 
         ]);
 
@@ -394,7 +397,7 @@ class FumigationController extends Controller
 
     public function assignedConsumptionShow (string $id){
 
-       $consumption =  Consumption::findOrFail($id);
+       $consumption =  Consumption::with(['product.unit_measure', 'user', 'fumigations.user'])->findOrFail($id);
 
 
        return view ('fumigation.consumption.show',compact('consumption'));

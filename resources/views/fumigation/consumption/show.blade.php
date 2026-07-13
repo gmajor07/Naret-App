@@ -16,7 +16,12 @@
                 <div class="card-body">
 
                     {{--  <h4>Usage Description of the Following Fumigation Product</h4> --}}
-                    1.) <b>{{$consumption->item_quantity}} {{$consumption->product->unit_measure->name }} </b>of  <b>{{$consumption->product->name }}</b> given to <b>{{$consumption->user()->first()->first_name}} {{$consumption->user()->first()->last_name}}</b> on <b>{{ $consumption->created_at->format('d/m/Y') }}</b> <br>
+                    @php
+                        $assignedUser = $consumption->user->first();
+                        $productName = $consumption->product->name ?? 'Unknown fumigant';
+                        $unitName = $consumption->product->unit_measure->name ?? 'items';
+                    @endphp
+                    1.) <b>{{$consumption->item_quantity}} {{ $unitName }} </b>of  <b>{{ $productName }}</b> given to <b>{{ $assignedUser ? $assignedUser->first_name . ' ' . $assignedUser->last_name : 'Unassigned fumigator' }}</b> on <b>{{ $consumption->created_at->format('d/m/Y') }}</b> <br>
                         &nbsp  &nbsp  &nbsp This product was used as the following table describe.
                     <br>
 
@@ -38,10 +43,13 @@
                           </thead>
                           <tbody>
                            @foreach($consumption->fumigations as $fumigation)
+                                @php
+                                    $fumigationUser = $fumigation->user->first();
+                                @endphp
                                   <tr>
 
                                         <td>
-                                           {{ $fumigation->user->first()->first_name ?? '' }} {{ $fumigation->user->first()->last_name ?? '' }}
+                                           {{ $fumigationUser ? $fumigationUser->first_name . ' ' . $fumigationUser->last_name : 'Unassigned fumigator' }}
                                         </td>
                                       {{--   <td>{{$consumption->user()->first()->first_name }}</td> --}}
                                         {{-- <td>{{$fumigation->user()->first_name}} </td> --}}
@@ -73,7 +81,7 @@
                     </div>
 
 
-                    In summary the <b>{{$consumption->item_quantity}}</b> bottles of <b>{{$consumption->product->name }} </b> were used in <b> {{ $totalContainerQuantity }}</b> containers.
+                    In summary the <b>{{$consumption->item_quantity}}</b> bottles of <b>{{ $productName }} </b> were used in <b> {{ $totalContainerQuantity }}</b> containers.
                 </div>
             </div>
 
