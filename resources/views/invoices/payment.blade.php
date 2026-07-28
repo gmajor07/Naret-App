@@ -85,7 +85,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td><b>VAT 18%</b></td>
+                    <td><b>{{ $invoice->taxLabel() }}</b></td>
                     <td><b>{{ $invoice->currency_id == 2 ? 'USD $' : 'TZs.' }} {{number_format(($invoice->vat),2,'.',',')}} </b></td>
                   </tr>
                   @if($invoice->vat > 0)

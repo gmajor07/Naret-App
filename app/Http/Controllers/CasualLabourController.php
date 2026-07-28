@@ -147,6 +147,7 @@ class CasualLabourController extends Controller
             $invoice->customer_id = $order->customer_id;
             $invoice->order_id = $order->id;
             $invoice->is_non_vat = $isNonVat;
+            $invoice->tax_type = $isNonVat ? Invoice::TAX_TYPE_EXEMPT : ($applyVat ? Invoice::TAX_TYPE_VAT : Invoice::TAX_TYPE_WITHOUT_VAT);
 
             if($request->input('discount_amount2')){
                 $invoice->discount = $request['discount_amount2'];
@@ -358,6 +359,7 @@ class CasualLabourController extends Controller
 
             $invoice = $order->invoice;
             $invoice->is_non_vat = $isNonVat;
+            $invoice->tax_type = $isNonVat ? Invoice::TAX_TYPE_EXEMPT : ($applyVat ? Invoice::TAX_TYPE_VAT : Invoice::TAX_TYPE_WITHOUT_VAT);
             //$invoice->discount = $request->discount_amount2 ?? 0;
 
             if ($request->input('discount_amount')) {

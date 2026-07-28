@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\Sale;
+use App\Models\Invoice;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\DefaultValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -36,7 +37,7 @@ class RevenueWithVatExport extends DefaultValueBinder implements FromCollection,
                                ->where('approved_by', '>', 0)
                                ->with(['customer', 'order', 'invoice'])
                                ->whereHas('invoice', function ($query) {
-                                   $query->where('vat', '>', 0);
+                                   $query->where('tax_type', Invoice::TAX_TYPE_VAT);
                                })
                                ->lazy()
                                ->collect();

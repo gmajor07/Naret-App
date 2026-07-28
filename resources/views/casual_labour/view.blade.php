@@ -68,7 +68,7 @@
                               <td></td>
                               <td></td>
                               <td></td>
-                              <td><b>{{ $order->invoice->is_non_vat ? 'NON VAT' : 'VAT 18%' }}</b></td>
+                              <td><b>{{ $order->invoice->taxLabel() }}</b></td>
                               <td><b>Tzs. {{number_format(($order->invoice->vat),2,'.',',')}} </b></td>
                             </tr>
 

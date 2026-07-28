@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/approveSales/{id}', [SalesController::class, 'approve'])->name('approveSales');
         Route::get('/belowStockAvg', [ProductController::class, 'getBelowStock'])->name('belowStockAvg');
         Route::get('/exportExpenses', [ExpensesController::class, 'exportExpenses'])->name('exportExpenses');
+        Route::get('/backup-database', [App\Http\Controllers\HomeController::class, 'backupDatabase'])->name('backupDatabase');
     });
 
     // **Seller-specific routes**
@@ -123,4 +124,3 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('expenses', ExpensesController::class);
 
 });
-

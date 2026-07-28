@@ -12,14 +12,6 @@
                     <a class="dashboard-topbar__ghost" href="{{ route('login') }}">{{ __('Login') }}</a>
                 @endif
             @else
-                <a href="{{ Auth::user()->role_id == 1 ? route('admin') : route('seller') }}" class="dashboard-topbar__brand">
-                    <span class="dashboard-topbar__brand-mark">N</span>
-                    <span>
-                        <span class="dashboard-topbar__brand-name">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
-                        <span class="dashboard-topbar__brand-subtitle">{{ Auth::user()->role->name ?? 'User' }}</span>
-                    </span>
-                </a>
-
                 <button
                     type="button"
                     class="dashboard-theme-toggle"

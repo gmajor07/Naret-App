@@ -194,8 +194,7 @@
 <body>
 @php
     $orderTypeId = (int) ($invoice->order?->type_id ?? 0);
-    $usesCompanyInvoice = in_array($orderTypeId, [1, 2, 3], true)
-        && ((bool) $invoice->is_non_vat || (float) $invoice->vat > 0);
+    $usesCompanyInvoice = in_array($orderTypeId, [1, 2, 3], true);
     $companyName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS';
     $companyDisplayName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS.';
     $logoPath = $usesCompanyInvoice ? 'assets/img/naret_company.jpg' : 'assets/img/narets.jpg';
@@ -332,7 +331,7 @@
         </tr>
         <tr>
             <td colspan="4"></td>
-            <td class="totals-label">{{ $invoice->is_non_vat ? 'NON VAT' : 'VAT (18%)' }}</td>
+            <td class="totals-label">{{ $invoice->taxLabel() }}</td>
             <td class="{{ (float) $invoice->vat == 0.0 ? 'zero-value' : 'total-value' }}">{{ number_format($invoice->vat, 2, '.', ',') }}</td>
         </tr>
         <tr>

@@ -106,6 +106,7 @@ class FumigationController extends Controller
             $isNonVat = $request->boolean('non_vat');
             $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
             $invoice->is_non_vat = $isNonVat;
+            $invoice->tax_type = $isNonVat ? Invoice::TAX_TYPE_EXEMPT : ($applyVat ? Invoice::TAX_TYPE_VAT : Invoice::TAX_TYPE_WITHOUT_VAT);
 
             if($request->input('discount_amount')){
                 $invoice->discount = $request['discount_amount'];
@@ -275,6 +276,7 @@ class FumigationController extends Controller
             $isNonVat = $request->boolean('non_vat');
             $applyVat = $request->boolean('apply_vat') && ! $isNonVat;
             $invoice->is_non_vat = $isNonVat;
+            $invoice->tax_type = $isNonVat ? Invoice::TAX_TYPE_EXEMPT : ($applyVat ? Invoice::TAX_TYPE_VAT : Invoice::TAX_TYPE_WITHOUT_VAT);
 
             if ($request->input('discount_amount')) {
                 $invoice->discount = $request->input('discount_amount');

@@ -403,6 +403,14 @@
                                     <span class="dashboard-quick-link__text">Open exports and summary reports</span>
                                 </span>
                             </a>
+
+                            <a href="{{ route('backupDatabase') }}" class="dashboard-quick-link">
+                                <span class="dashboard-quick-link__icon"><i class="fas fa-database"></i></span>
+                                <span>
+                                    <span class="dashboard-quick-link__title">Backup Database</span>
+                                    <span class="dashboard-quick-link__text">Download a SQL backup of tables and data</span>
+                                </span>
+                            </a>
                         </div>
                     </div>
                 </div>

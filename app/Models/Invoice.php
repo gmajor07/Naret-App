@@ -11,13 +11,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Invoice extends Model
 {
     use HasFactory, SoftDeletes;
+    public const TAX_TYPE_VAT = 'vat';
+    public const TAX_TYPE_WITHOUT_VAT = 'without_vat';
+    public const TAX_TYPE_EXEMPT = 'exempt';
+
     protected $fillable = ['customer_id','order_id','invoice_number','due_date',
-     'payment_status','total_vat_inclusive','vat','is_non_vat','discount','total_vat_exclusive','amount_paid'
+     'payment_status','total_vat_inclusive','vat','is_non_vat','tax_type','discount','total_vat_exclusive','amount_paid'
     ,'amount_due','invoice_satus','due_date'];
 
     protected $casts = [
         'is_non_vat' => 'boolean',
     ];
+
+    public function getTaxTypeAttribute($value): string
+    {
+        if ($value) {
+            return $value;
+        }
+
+        return $this->is_non_vat
+            ? self::TAX_TYPE_EXEMPT
+            : ((float) $this->vat > 0 ? self::TAX_TYPE_VAT : self::TAX_TYPE_WITHOUT_VAT);
+    }
+
+    public function taxLabel(): string
+    {
+        return match ($this->tax_type) {
+            self::TAX_TYPE_VAT => 'VAT (18%)',
+            self::TAX_TYPE_EXEMPT => 'VAT EXEMPT',
+            default => 'WITHOUT VAT',
+        };
+    }
 
     protected static function boot()
     {

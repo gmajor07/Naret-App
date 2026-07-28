@@ -12,6 +12,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Symfony\Component\Process\Process;
 
 class HomeController extends Controller
 {
@@ -37,6 +38,68 @@ class HomeController extends Controller
         }
 
         return redirect()->route('seller');
+    }
+
+    public function backupDatabase()
+    {
+        $connection = config('database.default');
+        $database = config("database.connections.{$connection}");
+
+        if (! $database || ($database['driver'] ?? null) !== 'mysql') {
+            abort(422, 'Database backup is currently supported for MySQL only.');
+        }
+
+        $dumpBinary = env(
+            'DB_DUMP_BINARY',
+            PHP_OS_FAMILY === 'Darwin' ? '/Applications/XAMPP/xamppfiles/bin/mysqldump' : 'mysqldump'
+        );
+
+        if (is_string($dumpBinary) && str_starts_with($dumpBinary, '/') && ! is_executable($dumpBinary)) {
+            $dumpBinary = 'mysqldump';
+        }
+
+        $backupPath = tempnam(storage_path('app'), 'naret_db_backup_');
+        if ($backupPath === false) {
+            abort(500, 'Could not prepare the database backup file.');
+        }
+
+        $command = [
+            $dumpBinary,
+            '--host=' . ($database['host'] ?? '127.0.0.1'),
+            '--port=' . ($database['port'] ?? 3306),
+            '--user=' . ($database['username'] ?? ''),
+            '--single-transaction',
+            '--triggers',
+            $database['database'] ?? '',
+        ];
+
+        $handle = fopen($backupPath, 'wb');
+        if ($handle === false) {
+            @unlink($backupPath);
+            abort(500, 'Could not open the database backup file.');
+        }
+
+        $process = new Process($command, base_path(), [
+            'MYSQL_PWD' => (string) ($database['password'] ?? ''),
+        ]);
+
+        $exitCode = $process->run(function (string $type, string $buffer) use ($handle): void {
+            if ($type === Process::OUT) {
+                fwrite($handle, $buffer);
+            }
+        });
+        fclose($handle);
+
+        if ($exitCode !== 0) {
+            @unlink($backupPath);
+            abort(500, 'Database backup failed: ' . trim($process->getErrorOutput()));
+        }
+
+        $filename = 'naret_database_backup_' . now()->format('Y-m-d_H-i-s') . '.sql';
+
+        return response()->download($backupPath, $filename, [
+            'Content-Type' => 'application/sql',
+        ])->deleteFileAfterSend(true);
     }
 
 

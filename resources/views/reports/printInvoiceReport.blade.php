@@ -45,6 +45,7 @@
                             <th>Order Number</th>
                             <th>Amount</th>
                             <th>VAT</th>
+                            <th>Tax Type</th>
                             <th>Discount</th>
                             <th>Total VAT Inclusive</th>
                             <th>Total VAT Exclusive</th>
@@ -65,6 +66,7 @@
                                 <td> {{ $invoice->order->order_number}} </td>
                                 <td> {{ number_format(( $invoice->total_amount),2,'.',',')}} </td>
                                 <td> {{ number_format(( $invoice->vat),2,'.',',') }} </td>
+                                <td> {{ $invoice->taxLabel() }} </td>
                                 <td> {{ number_format(( $invoice->discount),2,'.',',')}} </td>
                                 <td> {{ number_format(( $invoice->total_vat_inclusive),2,'.',',')}} </td>
                                 <td> {{ number_format(( $invoice->total_vat_exclusive),2,'.',',')}} </td>

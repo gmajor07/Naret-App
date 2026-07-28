@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\Sale;
+use App\Models\Invoice;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\DefaultValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -35,11 +36,8 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
             $this->sales = Sale::whereBetween('updated_at', [$this->startDate, $this->endDate])
                                ->where('approved_by', '>', 0)
                                ->with(['customer', 'order', 'invoice'])
-                               ->whereHas('order.products', function ($productQuery) {
-                                   $productQuery->whereRaw('UPPER(TRIM(name)) = ?', ['ALUMINIUM PHOSPHIDE 57%']);
-                               })
-                               ->whereHas('order', function ($query) {
-                                   $query->where('type_id', 1); // NARET COMPANY only
+                               ->whereHas('invoice', function ($query) {
+                                   $query->where('tax_type', Invoice::TAX_TYPE_EXEMPT);
                                })
                                ->lazy()
                                ->collect();
