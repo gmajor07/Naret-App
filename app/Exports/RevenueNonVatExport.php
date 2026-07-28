@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
-use App\Models\Sale;
 use App\Models\Invoice;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\DefaultValueBinder;
@@ -18,7 +17,7 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
 {
     protected $startDate;
     protected $endDate;
-    protected $sales;
+    protected $invoices;
 
     public function __construct($startDate, $endDate)
     {
@@ -32,33 +31,39 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
     */
     public function collection()
     {
-        if (!$this->sales) {
-            $this->sales = Sale::whereBetween('updated_at', [$this->startDate, $this->endDate])
-                               ->where('approved_by', '>', 0)
-                               ->with(['customer', 'order', 'invoice'])
-                               ->whereHas('invoice', function ($query) {
-                                   $query->where('tax_type', Invoice::TAX_TYPE_EXEMPT);
-                               })
-                               ->lazy()
-                               ->collect();
+        if (!$this->invoices) {
+            $this->invoices = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
+                                     ->where('tax_type', Invoice::TAX_TYPE_EXEMPT)
+                                     ->whereHas('order.products', function ($query) {
+                                         $query->whereRaw('UPPER(TRIM(name)) = ?', ['ALUMINIUM PHOSPHIDE 57%']);
+                                     })
+                                     ->with(['customer', 'order.products'])
+                                     ->latest('created_at')
+                                     ->get();
         }
 
-        return $this->sales;
+        return $this->invoices;
     }
 
     public function headings(): array
     {
-        return ["Date","Customer Name", "Order Number", "Invoice","Amount"];
+        return ["Date","Customer Name", "Order Number", "Invoice", "Product", "Amount"];
     }
 
-    public function map($sale): array
+    public function map($invoice): array
     {
+        $productNames = $invoice->order?->products
+            ->pluck('name')
+            ->filter()
+            ->join(', ');
+
         return [
-            Carbon::parse($sale->updated_at)->format('d-m-Y'),
-            $sale->customer->name,
-            $sale->order->order_number,
-            $sale->invoice->invoice_number,
-            number_format($sale->total_amount, 2),
+            Carbon::parse($invoice->created_at)->format('d-m-Y'),
+            $invoice->customer->name,
+            $invoice->order->order_number,
+            $invoice->invoice_number,
+            $productNames,
+            number_format($invoice->total_amount, 2),
         ];
     }
 
@@ -72,8 +77,8 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
                 $lastRow = count($this->collection()) + 2;
 
                 // Set total amount row
-                $event->sheet->setCellValue('D' . $lastRow, 'Total');
-                $event->sheet->setCellValue('E' . $lastRow, number_format($total, 2));
+                $event->sheet->setCellValue('E' . $lastRow, 'Total');
+                $event->sheet->setCellValue('F' . $lastRow, number_format($total, 2));
             },
         ];
     }
@@ -86,8 +91,8 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
             1 => ['font' => ['bold' => true]],
 
             // Bold the "Total" column
-            "D{$lastRow}" => ['font' => ['bold' => true]],
             "E{$lastRow}" => ['font' => ['bold' => true]],
+            "F{$lastRow}" => ['font' => ['bold' => true]],
         ];
     }
 }

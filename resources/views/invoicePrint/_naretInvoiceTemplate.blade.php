@@ -193,8 +193,7 @@
 </head>
 <body>
 @php
-    $orderTypeId = (int) ($invoice->order?->type_id ?? 0);
-    $usesCompanyInvoice = in_array($orderTypeId, [1, 2, 3], true);
+    $usesCompanyInvoice = (bool) $invoice->is_non_vat;
     $companyName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS';
     $companyDisplayName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS.';
     $logoPath = $usesCompanyInvoice ? 'assets/img/naret_company.jpg' : 'assets/img/narets.jpg';
