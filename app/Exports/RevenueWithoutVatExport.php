@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
-use App\Models\Sale;
 use App\Models\Invoice;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\DefaultValueBinder;
@@ -18,7 +17,7 @@ class RevenueWithoutVatExport extends DefaultValueBinder implements FromCollecti
 {
     protected $startDate;
     protected $endDate;
-    protected $sales;
+    protected $invoices;
 
     public function __construct($startDate, $endDate)
     {
@@ -32,18 +31,15 @@ class RevenueWithoutVatExport extends DefaultValueBinder implements FromCollecti
     */
     public function collection()
     {
-        if (!$this->sales) {
-            $this->sales = Sale::whereBetween('updated_at', [$this->startDate, $this->endDate])
-                               ->where('approved_by', '>', 0)
-                               ->with(['customer', 'order', 'invoice'])
-                               ->whereHas('invoice', function ($query) {
-                                   $query->where('tax_type', Invoice::TAX_TYPE_WITHOUT_VAT);
-                               })
-                               ->lazy()
-                               ->collect();
+        if (!$this->invoices) {
+            $this->invoices = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
+                                     ->where('tax_type', Invoice::TAX_TYPE_WITHOUT_VAT)
+                                     ->with(['customer', 'order'])
+                                     ->latest('created_at')
+                                     ->get();
         }
 
-        return $this->sales;
+        return $this->invoices;
     }
 
     public function headings(): array
@@ -51,14 +47,14 @@ class RevenueWithoutVatExport extends DefaultValueBinder implements FromCollecti
         return ["Date","Customer Name", "Order Number", "Invoice","Amount"];
     }
 
-    public function map($sale): array
+    public function map($invoice): array
     {
         return [
-            Carbon::parse($sale->updated_at)->format('d-m-Y'),
-            $sale->customer->name,
-            $sale->order->order_number,
-            $sale->invoice->invoice_number,
-            number_format($sale->total_amount, 2),
+            Carbon::parse($invoice->created_at)->format('d-m-Y'),
+            $invoice->customer->name,
+            $invoice->order->order_number,
+            $invoice->invoice_number,
+            number_format($invoice->total_amount, 2),
            // Carbon::parse($sale->date)->format('d-m-Y'),
         ];
     }
