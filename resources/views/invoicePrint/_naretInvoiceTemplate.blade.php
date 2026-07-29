@@ -193,7 +193,7 @@
 </head>
 <body>
 @php
-    $usesCompanyInvoice = (bool) $invoice->is_non_vat;
+    $usesCompanyInvoice = (bool) $invoice->is_non_vat || (float) $invoice->vat > 0;
     $companyName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS';
     $companyDisplayName = $usesCompanyInvoice ? 'NARET COMPANY LIMITED' : 'NARET FUMIGATION AND GENERAL CLEANNESS.';
     $logoPath = $usesCompanyInvoice ? 'assets/img/naret_company.jpg' : 'assets/img/narets.jpg';
