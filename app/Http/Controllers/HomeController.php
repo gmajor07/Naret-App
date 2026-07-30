@@ -58,10 +58,21 @@ class HomeController extends Controller
             $dumpBinary = 'mysqldump';
         }
 
-        $backupPath = tempnam(storage_path('app'), 'naret_db_backup_');
-        if ($backupPath === false) {
-            abort(500, 'Could not prepare the database backup file.');
+        $homeDirectory = getenv('HOME')
+            ?: getenv('USERPROFILE')
+            ?: (getenv('HOMEDRIVE') && getenv('HOMEPATH') ? getenv('HOMEDRIVE') . getenv('HOMEPATH') : null)
+            ?: ($_SERVER['HOME'] ?? null);
+        $defaultBackupDirectory = $homeDirectory
+            ? $homeDirectory . DIRECTORY_SEPARATOR . 'Documents' . DIRECTORY_SEPARATOR . 'Naret Database Backups'
+            : storage_path('app/backups');
+        $backupDirectory = env('DB_BACKUP_PATH', $defaultBackupDirectory);
+
+        if (! is_dir($backupDirectory) && ! mkdir($backupDirectory, 0750, true) && ! is_dir($backupDirectory)) {
+            abort(500, 'Could not create the database backup folder.');
         }
+
+        $filename = 'naret_database_backup_' . now()->format('Y-m-d_H-i-s') . '_' . uniqid() . '.sql';
+        $backupPath = $backupDirectory . DIRECTORY_SEPARATOR . $filename;
 
         $command = [
             $dumpBinary,
@@ -95,11 +106,9 @@ class HomeController extends Controller
             abort(500, 'Database backup failed: ' . trim($process->getErrorOutput()));
         }
 
-        $filename = 'naret_database_backup_' . now()->format('Y-m-d_H-i-s') . '.sql';
-
         return response()->download($backupPath, $filename, [
             'Content-Type' => 'application/sql',
-        ])->deleteFileAfterSend(true);
+        ])->deleteFileAfterSend(false);
     }
 
 

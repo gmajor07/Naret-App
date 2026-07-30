@@ -3,7 +3,7 @@
 namespace App\Exports;
 
 use Carbon\Carbon;
-use App\Models\Sale;
+use App\Models\Invoice;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\DefaultValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -32,29 +32,34 @@ class RevenueExport extends DefaultValueBinder implements FromCollection, WithHe
     public function collection()
     {
         if (!$this->cachedCollection) {
-            $this->cachedCollection = Sale::whereBetween('updated_at', [$this->startDate, $this->endDate])
-                ->where('approved_by', '>', 0)
-                ->with(['customer', 'order', 'invoice'])
-                ->lazy()
-                ->collect();
+            $this->cachedCollection = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
+                ->with(['customer', 'order.products'])
+                ->latest('created_at')
+                ->get();
         }
         return $this->cachedCollection;
     }
 
     public function headings(): array
     {
-        return ["Date","Customer Name", "Order Number", "Invoice","Amount"];
+        return ["Date","Customer Name", "Order Number", "Invoice", "Tax Type", "Description", "Amount"];
     }
 
-    public function map($sale): array
+    public function map($invoice): array
     {
+        $description = $invoice->order?->description ?: $invoice->order?->products
+            ->pluck('description')
+            ->filter()
+            ->join(', ');
+
         return [
-            Carbon::parse($sale->updated_at)->format('d-m-Y'),
-            $sale->customer->name,
-            $sale->order->order_number,
-            $sale->invoice->invoice_number,
-            number_format($sale->total_amount, 2),
-           // Carbon::parse($sale->date)->format('d-m-Y'),
+            Carbon::parse($invoice->created_at)->format('d-m-Y'),
+            $invoice->customer->name,
+            $invoice->order->order_number,
+            $invoice->invoice_number,
+            $invoice->taxLabel(),
+            $description,
+            number_format($invoice->total_amount, 2),
         ];
     }
 
@@ -68,8 +73,8 @@ class RevenueExport extends DefaultValueBinder implements FromCollection, WithHe
                 $lastRow = count($this->collection()) + 2;
 
                 // Set total amount row
-                $event->sheet->setCellValue('D' . $lastRow, 'Total');
-                $event->sheet->setCellValue('E' . $lastRow, number_format($total, 2));
+                $event->sheet->setCellValue('F' . $lastRow, 'Total');
+                $event->sheet->setCellValue('G' . $lastRow, number_format($total, 2));
             },
         ];
     }
@@ -83,8 +88,8 @@ class RevenueExport extends DefaultValueBinder implements FromCollection, WithHe
             1 => ['font' => ['bold' => true]],
 
             // Bold the "Total" column (Assuming column "C" contains the total amounts)
-            "D{$lastRow}" => ['font' => ['bold' => true]],
-            "E{$lastRow}" => ['font' => ['bold' => true]],
+            "F{$lastRow}" => ['font' => ['bold' => true]],
+            "G{$lastRow}" => ['font' => ['bold' => true]],
             //'C' => ['font' => ['bold' => true]],
         ];
     }

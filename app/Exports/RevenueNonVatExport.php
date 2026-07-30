@@ -47,13 +47,17 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
 
     public function headings(): array
     {
-        return ["Date","Customer Name", "Order Number", "Invoice", "Product", "Amount"];
+        return ["Date","Customer Name", "Order Number", "Invoice", "Product", "Description", "Amount"];
     }
 
     public function map($invoice): array
     {
         $productNames = $invoice->order?->products
             ->pluck('name')
+            ->filter()
+            ->join(', ');
+        $descriptions = $invoice->order?->products
+            ->pluck('description')
             ->filter()
             ->join(', ');
 
@@ -63,6 +67,7 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
             $invoice->order->order_number,
             $invoice->invoice_number,
             $productNames,
+            $descriptions,
             number_format($invoice->total_amount, 2),
         ];
     }
@@ -77,8 +82,8 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
                 $lastRow = count($this->collection()) + 2;
 
                 // Set total amount row
-                $event->sheet->setCellValue('E' . $lastRow, 'Total');
-                $event->sheet->setCellValue('F' . $lastRow, number_format($total, 2));
+                $event->sheet->setCellValue('F' . $lastRow, 'Total');
+                $event->sheet->setCellValue('G' . $lastRow, number_format($total, 2));
             },
         ];
     }
@@ -91,8 +96,8 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
             1 => ['font' => ['bold' => true]],
 
             // Bold the "Total" column
-            "E{$lastRow}" => ['font' => ['bold' => true]],
             "F{$lastRow}" => ['font' => ['bold' => true]],
+            "G{$lastRow}" => ['font' => ['bold' => true]],
         ];
     }
 }

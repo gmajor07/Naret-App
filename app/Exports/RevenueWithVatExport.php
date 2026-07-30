@@ -34,7 +34,7 @@ class RevenueWithVatExport extends DefaultValueBinder implements FromCollection,
         if (!$this->invoices) {
             $this->invoices = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
                                      ->where('tax_type', Invoice::TAX_TYPE_VAT)
-                                     ->with(['customer', 'order'])
+                                     ->with(['customer', 'order.products'])
                                      ->latest('created_at')
                                      ->get();
         }
@@ -44,16 +44,22 @@ class RevenueWithVatExport extends DefaultValueBinder implements FromCollection,
 
     public function headings(): array
     {
-        return ["Date","Customer Name", "Order Number", "Invoice","Amount"];
+        return ["Date","Customer Name", "Order Number", "Invoice", "Description", "Amount"];
     }
 
     public function map($invoice): array
     {
+        $description = $invoice->order?->description ?: $invoice->order?->products
+            ->pluck('description')
+            ->filter()
+            ->join(', ');
+
         return [
             Carbon::parse($invoice->created_at)->format('d-m-Y'),
             $invoice->customer->name,
             $invoice->order->order_number,
             $invoice->invoice_number,
+            $description,
             number_format($invoice->total_amount, 2),
            // Carbon::parse($sale->date)->format('d-m-Y'),
         ];
@@ -71,8 +77,8 @@ class RevenueWithVatExport extends DefaultValueBinder implements FromCollection,
                 $lastRow = count($this->collection()) + 2;
 
                 // Set total amount row
-                $event->sheet->setCellValue('D' . $lastRow, 'Total');
-                $event->sheet->setCellValue('E' . $lastRow, number_format($total, 2));
+                $event->sheet->setCellValue('E' . $lastRow, 'Total');
+                $event->sheet->setCellValue('F' . $lastRow, number_format($total, 2));
             },
         ];
     }
@@ -86,8 +92,8 @@ class RevenueWithVatExport extends DefaultValueBinder implements FromCollection,
             1 => ['font' => ['bold' => true]],
 
             // Bold the "Total" column (Assuming column "C" contains the total amounts)
-            "D{$lastRow}" => ['font' => ['bold' => true]],
             "E{$lastRow}" => ['font' => ['bold' => true]],
+            "F{$lastRow}" => ['font' => ['bold' => true]],
             //'C' => ['font' => ['bold' => true]],
         ];
     }
