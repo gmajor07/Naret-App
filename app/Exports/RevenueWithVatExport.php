@@ -33,6 +33,7 @@ class RevenueWithVatExport extends DefaultValueBinder implements FromCollection,
     {
         if (!$this->invoices) {
             $this->invoices = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
+                                     ->where('invoice_status', '!=', 3)
                                      ->where('tax_type', Invoice::TAX_TYPE_VAT)
                                      ->with(['customer', 'order.products'])
                                      ->latest('created_at')

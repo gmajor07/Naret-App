@@ -33,6 +33,7 @@ class RevenueNonVatExport extends DefaultValueBinder implements FromCollection, 
     {
         if (!$this->invoices) {
             $this->invoices = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
+                                     ->where('invoice_status', '!=', 3)
                                      ->where('tax_type', Invoice::TAX_TYPE_EXEMPT)
                                      ->whereHas('order.products', function ($query) {
                                          $query->whereRaw('UPPER(TRIM(name)) = ?', ['ALUMINIUM PHOSPHIDE 57%']);

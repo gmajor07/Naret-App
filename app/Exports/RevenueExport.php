@@ -33,6 +33,7 @@ class RevenueExport extends DefaultValueBinder implements FromCollection, WithHe
     {
         if (!$this->cachedCollection) {
             $this->cachedCollection = Invoice::whereBetween('created_at', [$this->startDate, $this->endDate])
+                ->where('invoice_status', '!=', 3)
                 ->with(['customer', 'order.products'])
                 ->latest('created_at')
                 ->get();
