@@ -12,7 +12,7 @@ use Carbon\CarbonPeriod;
 use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Symfony\Component\Process\Process;
+use App\Services\DatabaseBackupService;
 
 class HomeController extends Controller
 {
@@ -40,73 +40,15 @@ class HomeController extends Controller
         return redirect()->route('seller');
     }
 
-    public function backupDatabase()
+    public function backupDatabase(DatabaseBackupService $backupService)
     {
-        $connection = config('database.default');
-        $database = config("database.connections.{$connection}");
-
-        if (! $database || ($database['driver'] ?? null) !== 'mysql') {
-            abort(422, 'Database backup is currently supported for MySQL only.');
+        try {
+            $backup = $backupService->create();
+        } catch (\RuntimeException $exception) {
+            abort(500, $exception->getMessage());
         }
 
-        $dumpBinary = env(
-            'DB_DUMP_BINARY',
-            PHP_OS_FAMILY === 'Darwin' ? '/Applications/XAMPP/xamppfiles/bin/mysqldump' : 'mysqldump'
-        );
-
-        if (is_string($dumpBinary) && str_starts_with($dumpBinary, '/') && ! is_executable($dumpBinary)) {
-            $dumpBinary = 'mysqldump';
-        }
-
-        $homeDirectory = getenv('HOME')
-            ?: getenv('USERPROFILE')
-            ?: (getenv('HOMEDRIVE') && getenv('HOMEPATH') ? getenv('HOMEDRIVE') . getenv('HOMEPATH') : null)
-            ?: ($_SERVER['HOME'] ?? null);
-        $defaultBackupDirectory = $homeDirectory
-            ? $homeDirectory . DIRECTORY_SEPARATOR . 'Documents' . DIRECTORY_SEPARATOR . 'Naret Database Backups'
-            : storage_path('app/backups');
-        $backupDirectory = env('DB_BACKUP_PATH', $defaultBackupDirectory);
-
-        if (! is_dir($backupDirectory) && ! mkdir($backupDirectory, 0750, true) && ! is_dir($backupDirectory)) {
-            abort(500, 'Could not create the database backup folder.');
-        }
-
-        $filename = 'naret_database_backup_' . now()->format('Y-m-d_H-i-s') . '_' . uniqid() . '.sql';
-        $backupPath = $backupDirectory . DIRECTORY_SEPARATOR . $filename;
-
-        $command = [
-            $dumpBinary,
-            '--host=' . ($database['host'] ?? '127.0.0.1'),
-            '--port=' . ($database['port'] ?? 3306),
-            '--user=' . ($database['username'] ?? ''),
-            '--single-transaction',
-            '--triggers',
-            $database['database'] ?? '',
-        ];
-
-        $handle = fopen($backupPath, 'wb');
-        if ($handle === false) {
-            @unlink($backupPath);
-            abort(500, 'Could not open the database backup file.');
-        }
-
-        $process = new Process($command, base_path(), [
-            'MYSQL_PWD' => (string) ($database['password'] ?? ''),
-        ]);
-
-        $exitCode = $process->run(function (string $type, string $buffer) use ($handle): void {
-            if ($type === Process::OUT) {
-                fwrite($handle, $buffer);
-            }
-        });
-        fclose($handle);
-
-        if ($exitCode !== 0) {
-            @unlink($backupPath);
-            abort(500, 'Database backup failed: ' . trim($process->getErrorOutput()));
-        }
-
-        return response()->download($backupPath, $filename, [
+        return response()->download($backup['path'], $backup['filename'], [
             'Content-Type' => 'application/sql',
         ])->deleteFileAfterSend(false);
     }
