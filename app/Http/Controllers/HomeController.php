@@ -13,6 +13,8 @@ use App\Models\Sale;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\DatabaseBackupService;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -51,6 +53,51 @@ class HomeController extends Controller
         return response()->download($backup['path'], $backup['filename'], [
             'Content-Type' => 'application/sql',
         ])->deleteFileAfterSend(false);
+    }
+
+    public function importDatabase(Request $request, DatabaseBackupService $backupService)
+    {
+        $request->validate([
+            'database_file' => ['required', 'file', 'extensions:sql', 'max:102400'],
+        ]);
+
+        $sqlPath = $request->file('database_file')->getRealPath();
+        $contents = file_get_contents($sqlPath);
+        if ($contents === false || preg_match('/(?:^|[\r\n])\s*(?:drop\s+database|create\s+database|use\s+`?[^;]+`?)\s*;?\s*(?:$|[\r\n])/im', $contents)) {
+            return back()->withErrors(['database_file' => 'SQL file contains unsupported database-switching commands.']);
+        }
+
+        $currentBackup = null;
+        $maintenanceEnabled = false;
+
+        try {
+            $currentBackup = $backupService->create(config('database.backup.retention_days', 30));
+            Artisan::call('down', ['--render' => 'errors::503']);
+            $maintenanceEnabled = true;
+            $backupService->import($sqlPath);
+        } catch (\Throwable $exception) {
+            Log::error('Database import failed.', ['exception' => $exception]);
+
+            if ($currentBackup && is_file($currentBackup['path'])) {
+                try {
+                    $backupService->import($currentBackup['path']);
+                } catch (\Throwable $restoreException) {
+                    Log::critical('Database restore after failed import also failed.', ['exception' => $restoreException]);
+                }
+            }
+
+            if ($maintenanceEnabled) {
+                Artisan::call('up');
+            }
+
+            return back()->withErrors(['database_file' => 'Import failed. The previous database backup was restored if possible.']);
+        }
+
+        if ($maintenanceEnabled) {
+            Artisan::call('up');
+        }
+
+        return back()->with('success', 'Database imported successfully. A backup of the previous database was created first.');
     }
 
 

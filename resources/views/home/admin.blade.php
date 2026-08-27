@@ -355,6 +355,14 @@
                         </div>
                     </div>
                     <div class="dashboard-panel__body">
+                        @if (session('success'))
+                            <div class="alert alert-success">{{ session('success') }}</div>
+                        @endif
+
+                        @if ($errors->has('database_file'))
+                            <div class="alert alert-danger">{{ $errors->first('database_file') }}</div>
+                        @endif
+
                         <div class="dashboard-quick-links">
                             <a href="{{ route('settings.index') }}" class="dashboard-quick-link">
                                 <span class="dashboard-quick-link__icon"><i class="fas fa-cogs"></i></span>
@@ -411,9 +419,56 @@
                                     <span class="dashboard-quick-link__text">Download a SQL backup of tables and data</span>
                                 </span>
                             </a>
+
+                            <form action="{{ route('importDatabase') }}" method="POST" enctype="multipart/form-data" class="dashboard-quick-link dashboard-import-card" id="importDatabaseForm">
+                                @csrf
+                                <span class="dashboard-quick-link__icon"><i class="fas fa-upload"></i></span>
+                                <span class="dashboard-import-card__content">
+                                    <span class="dashboard-quick-link__title d-block">Import Database</span>
+                                    <span class="dashboard-quick-link__text d-block mb-3">Upload a new SQL database backup</span>
+                                    <span class="dashboard-import-card__controls">
+                                        <input type="file" name="database_file" id="admin_database_file" accept=".sql" required class="dashboard-file-input">
+                                        <label for="admin_database_file" class="dashboard-file-picker mb-0">
+                                            <i class="fas fa-folder-open mr-1"></i> Choose SQL file
+                                        </label>
+                                        <span class="dashboard-file-name" data-file-name="admin_database_file">No file selected</span>
+                                        <button type="submit" class="btn btn-sm btn-danger dashboard-import-card__button">
+                                            <i class="fas fa-upload mr-1"></i> Import SQL
+                                        </button>
+                                    </span>
+                                </span>
+                            </form>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="importDatabaseConfirmModal" tabindex="-1" role="dialog" aria-labelledby="importDatabaseConfirmTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="importDatabaseConfirmTitle">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Confirm database import
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">You are about to import:</p>
+                <p class="font-weight-bold text-primary mb-3" id="importDatabaseFileName"></p>
+                <div class="alert alert-warning mb-0">
+                    The current database will be backed up first. Other users will be temporarily blocked, and imported data may replace existing records.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light border" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDatabaseImport">
+                    <i class="fas fa-upload mr-1"></i> Import SQL
+                </button>
             </div>
         </div>
     </div>
@@ -422,6 +477,38 @@
 
 @section('pagescripts')
 <script type="text/javascript">
+    document.querySelectorAll('.dashboard-file-input').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var fileName = document.querySelector('[data-file-name="' + input.id + '"]');
+            if (fileName) {
+                fileName.textContent = input.files.length ? input.files[0].name : 'No file selected';
+            }
+        });
+    });
+
+    var importDatabaseForm = document.getElementById('importDatabaseForm');
+    var importDatabaseModal = document.getElementById('importDatabaseConfirmModal');
+    var confirmDatabaseImport = document.getElementById('confirmDatabaseImport');
+
+    if (importDatabaseForm && importDatabaseModal && confirmDatabaseImport) {
+        importDatabaseForm.addEventListener('submit', function (event) {
+            if (importDatabaseForm.dataset.confirmed === 'true') {
+                return;
+            }
+
+            event.preventDefault();
+            var selectedFile = document.getElementById('admin_database_file').files[0];
+            document.getElementById('importDatabaseFileName').textContent = selectedFile ? selectedFile.name : 'Selected SQL file';
+            $('#importDatabaseConfirmModal').modal('show');
+        });
+
+        confirmDatabaseImport.addEventListener('click', function () {
+            importDatabaseForm.dataset.confirmed = 'true';
+            $('#importDatabaseConfirmModal').modal('hide');
+            importDatabaseForm.submit();
+        });
+    }
+
     $(function () {
         var areaChartElement = $('#areaChart');
         var chartLabels = JSON.parse(areaChartElement.attr('data-labels') || '[]');

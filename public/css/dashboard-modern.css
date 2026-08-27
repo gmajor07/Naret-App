@@ -1035,6 +1035,67 @@ body.dark-mode.dashboard-modern .dashboard-theme-toggle__icon {
     font-size: 13px;
 }
 
+.dashboard-import-card {
+    align-items: flex-start;
+}
+
+.dashboard-import-card__content {
+    flex: 1;
+    min-width: 0;
+}
+
+.dashboard-import-card__controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.dashboard-file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dashboard-file-picker {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid rgba(15, 91, 216, 0.2);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--brand-800);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-file-picker:hover {
+    background: var(--info-soft);
+    border-color: rgba(15, 91, 216, 0.4);
+}
+
+.dashboard-file-input:focus-visible + .dashboard-file-picker {
+    outline: 2px solid var(--brand-800);
+    outline-offset: 2px;
+}
+
+.dashboard-file-name {
+    max-width: 150px;
+    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-import-card__button {
+    white-space: nowrap;
+}
+
 body.dashboard-modern .content .card {
     border: 1px solid rgba(15, 91, 216, 0.08);
     border-radius: 24px;

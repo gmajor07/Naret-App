@@ -74,6 +74,81 @@ class DatabaseBackupService
         ];
     }
 
+    public function import(string $sqlPath): void
+    {
+        $connection = config('database.default');
+        $database = config("database.connections.{$connection}");
+
+        if (! $database || ($database['driver'] ?? null) !== 'mysql') {
+            throw new RuntimeException('Database import is currently supported for MySQL only.');
+        }
+
+        $temporaryPath = $this->prepareImportFile($sqlPath);
+        $handle = fopen($temporaryPath, 'rb');
+        if ($handle === false) {
+            @unlink($temporaryPath);
+            throw new RuntimeException('Could not read the uploaded SQL file.');
+        }
+
+        $mysqlBinary = config('database.backup.mysql_binary')
+            ?: (PHP_OS_FAMILY === 'Darwin' ? '/Applications/XAMPP/xamppfiles/bin/mysql' : 'mysql');
+        if (is_string($mysqlBinary) && Str::startsWith($mysqlBinary, '/') && ! is_executable($mysqlBinary)) {
+            $mysqlBinary = 'mysql';
+        }
+
+        $process = new Process([
+            $mysqlBinary,
+            '--host=' . ($database['host'] ?? '127.0.0.1'),
+            '--port=' . ($database['port'] ?? 3306),
+            '--user=' . ($database['username'] ?? ''),
+            $database['database'] ?? '',
+        ], base_path(), [
+            'MYSQL_PWD' => (string) ($database['password'] ?? ''),
+        ]);
+        $process->setInput($handle);
+        $exitCode = $process->run();
+        fclose($handle);
+        @unlink($temporaryPath);
+
+        if ($exitCode !== 0) {
+            throw new RuntimeException('Database import failed: ' . trim($process->getErrorOutput()));
+        }
+    }
+
+    private function prepareImportFile(string $sqlPath): string
+    {
+        $input = fopen($sqlPath, 'rb');
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'naret-import-');
+        $output = $temporaryPath ? fopen($temporaryPath, 'wb') : false;
+
+        if ($input === false || $output === false) {
+            if (is_resource($input)) {
+                fclose($input);
+            }
+            if ($temporaryPath) {
+                @unlink($temporaryPath);
+            }
+            throw new RuntimeException('Could not prepare the SQL file for import.');
+        }
+
+        $firstLine = fgets($input);
+        if ($firstLine !== false && ! str_contains($firstLine, '/*M!999999\\- enable the sandbox mode */')) {
+            fwrite($output, $firstLine);
+        }
+
+        while (! feof($input)) {
+            $chunk = fread($input, 1024 * 1024);
+            if ($chunk !== false && $chunk !== '') {
+                fwrite($output, $chunk);
+            }
+        }
+
+        fclose($input);
+        fclose($output);
+
+        return $temporaryPath;
+    }
+
     private function defaultBackupDirectory(): string
     {
         $homeDirectory = getenv('HOME')

@@ -45,6 +45,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/belowStockAvg', [ProductController::class, 'getBelowStock'])->name('belowStockAvg');
         Route::get('/exportExpenses', [ExpensesController::class, 'exportExpenses'])->name('exportExpenses');
         Route::get('/backup-database', [App\Http\Controllers\HomeController::class, 'backupDatabase'])->name('backupDatabase');
+        Route::post('/import-database', [App\Http\Controllers\HomeController::class, 'importDatabase'])->name('importDatabase');
     });
 
     // **Seller-specific routes**
